@@ -64,9 +64,9 @@ O formato ainda está em desenvolvimento e sua especificação pode mudar.
 | ------------------------------ | --------------------- |
 | Estrutura básica do arquivo    | 🟢 Implementado       |
 | Leitura de pixels              | 🟢 Implementado       |
-| Escrita de imagens             | 🟡 Em desenvolvimento |
-| Metadados                      | 🟡 Planejado          |
-| Compressão                     | 🔴 Planejado          |
+| Escrita de imagens             | 🟢 Implementado       |
+| Metadados                      | 🟡 Em Desenvolvimento |
+| Compressão                     | 🟡 Planejado          |
 | Ferramentas de conversão       | 🔴 Planejado          |
 | Suporte em aplicações externas | 🔴 Futuro             |
 
@@ -83,7 +83,7 @@ O projeto está sendo desenvolvido utilizando:
 * [x] Definir estrutura inicial do arquivo
 * [x] Definir representação básica dos pixels
 * [x] Implementar decoder
-* [ ] Implementar encoder
+* [x] Implementar encoder
 * [ ] Finalizar especificação do formato
 * [ ] Adicionar metadados
 * [ ] Desenvolver compressão
