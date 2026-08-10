@@ -1,4 +1,4 @@
-package com.arcanjo.javaremote.viewer;
+package com.arcanjo.archimage.viewer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +16,7 @@ public class ImagePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        int escale = 20;
+        int escale = 1;
 
         g.drawImage(image, 0, 0,image.getWidth() * escale, image.getHeight() * escale,  this);
     }
