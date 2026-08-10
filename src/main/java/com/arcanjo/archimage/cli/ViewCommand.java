@@ -10,7 +10,8 @@ import java.awt.image.BufferedImage;
 
 @Command(
         name = "view",
-        description = "View an ArcImage file."
+        description = "View an ArcImage file.",
+        mixinStandardHelpOptions = true
 )
 public class ViewCommand implements Runnable{
     BufferedImage image;

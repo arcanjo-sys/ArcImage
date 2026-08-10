@@ -9,7 +9,8 @@ import java.io.IOException;
 
 @Command(
         name = "decode",
-        description = "Decode an ArcImage file."
+        description = "Decode an ArcImage file.",
+        mixinStandardHelpOptions = true
 )
 public class DecodeCommand implements Runnable {
     BufferedImage image;

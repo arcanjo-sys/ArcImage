@@ -8,7 +8,8 @@ import java.io.IOException;
 
 @Command(
         name = "encode",
-        description = "Encode an image into ArcImage format."
+        description = "Encode an image into ArcImage format.",
+        mixinStandardHelpOptions = true
 )
 public class EncodeCommand implements Runnable {
 
