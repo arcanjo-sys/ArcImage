@@ -2,7 +2,7 @@
 
 > Um formato de imagem experimental desenvolvido do zero para estudar armazenamento binário, representação de pixels, codificação e decodificação de imagens.
 
-[![Java](https://img.shields.io/badge/Java-17%2B-orange)](https://www.java.com/)
+[![Java](https://img.shields.io/badge/Java-21%2B-orange)](https://www.java.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Status](https://img.shields.io/badge/status-experimental-yellow)](#status)
 
