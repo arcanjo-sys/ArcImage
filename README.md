@@ -369,7 +369,14 @@ ArcImage/
 │               └── arcanjo/
 │                   └── archimage/
 │                       ├── codec/
+│                       │   ├── ArcDecode.java
 │                       │   └── ArcEncode.java
+│                       │
+│                       ├── cli/
+│                       │   ├── ArcCommand.java
+│                       │   ├── DecodeCommand.java
+│                       │   ├── EncodeCommand.java
+│                       │   └── ViewCommand.java
 │                       │
 │                       ├── format/
 │                       │   └── Format.java
@@ -377,8 +384,10 @@ ArcImage/
 │                       └── viewer/
 │                           └── ImageView.java
 │
+├── Main.java
 ├── pom.xml
 ├── README.md
+├── CONTRIBUTING.md
 └── LICENSE
 ```
 
