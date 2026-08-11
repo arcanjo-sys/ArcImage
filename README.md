@@ -62,53 +62,6 @@ O formato foi projetado para trabalhar com **compressão sem perdas (lossless)**
 
 ---
 
-# 🚀 Resultados experimentais
-
-Durante os testes iniciais, o ArcImage apresentou resultados interessantes quando comparado com PNG.
-
-### Teste 1
-
-```text
-PNG:  4,1 MB
-ARC:  3,0 MB
-```
-
-Redução aproximada:
-
-**26,8%**
-
----
-
-### Teste 2
-
-```text
-PNG:  14 MB
-ARC:  12 MB
-```
-
-Redução aproximada:
-
-**14,3%**
-
----
-
-### Teste 3
-
-```text
-PNG:  600 KB
-ARC:  176 KB
-```
-
-Redução aproximada:
-
-**70,7%**
-
-Nesse teste, o arquivo ARC ficou aproximadamente **3,4× menor** que o PNG utilizado no benchmark.
-
-> Esses resultados são experimentais e dependem fortemente do conteúdo da imagem. Não representam uma garantia de que ARC será menor que PNG em todos os casos.
-
----
-
 # 🔐 Compressão Lossless
 
 O ArcImage não utiliza quantização ou redução deliberada de qualidade na versão atual.
