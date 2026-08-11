@@ -346,6 +346,7 @@ O projeto atualmente utiliza:
 * `ImageIO`
 * `Deflater`
 * `Inflater`
+* `Picocli`
 * Maven
 * Git
 * GitHub
