@@ -4,16 +4,12 @@ import com.arcanjo.archimage.codec.ArcDecode;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-
 @Command(
         name = "decode",
         description = "Decode an ArcImage file.",
         mixinStandardHelpOptions = true
 )
 public class DecodeCommand implements Runnable {
-    BufferedImage image;
 
     @Parameters(
             index = "0",
@@ -21,12 +17,18 @@ public class DecodeCommand implements Runnable {
     )
     private String input;
 
+    @Parameters(
+            index = "1",
+            description = "Output image file"
+    )
+    private String output;
+
     @Override
     public void run() {
 
-        ArcDecode decoder = new ArcDecode(input);
+        ArcDecode decoder = new ArcDecode(input, output);
 
-        image = decoder.decode();
+        decoder.decode();
 
         System.out.println(
                 "Image decoded successfully."

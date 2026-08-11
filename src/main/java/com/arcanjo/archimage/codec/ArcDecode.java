@@ -2,104 +2,99 @@ package com.arcanjo.archimage.codec;
 
 import com.arcanjo.archimage.format.Format;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
 public class ArcDecode {
-    private File img;
+    private final File fileInput;
+    private final File fileOutput;
 
-    public ArcDecode(String img) {
-        this.img = new File(img);
+    public ArcDecode(String fileInput, String fileOutput) {
+        this.fileInput = new File(fileInput);
+        this.fileOutput = new File(fileOutput);
     }
 
-    private int getSize(byte high, byte low) {
-        return ((high & 0xFF) << 8)
-                |  (low & 0xFF);
-    }
+    public void decode() {
 
-    private int getRgb(int r, int g, int b) {
-        return (255 << 24) | (r << 16) | (g << 8) | b;
-    }
+        try (DataInputStream in = new DataInputStream(
+                new BufferedInputStream(new FileInputStream(fileInput)))) {
 
-    public BufferedImage decode() {
-
-        try (BufferedInputStream bis =
-                     new BufferedInputStream(
-                             new FileInputStream(this.img))) {
-
-            // =====================
+            // =========================
             // HEADER
-            // =====================
+            // =========================
 
-            byte[] headerBuffer = new byte[Format.HEADER_SIZE];
+            byte[] signature = new byte[3];
+            in.readFully(signature);
 
-            int bytesHeader = bis.readNBytes(
-                    headerBuffer, 0, 10
-            );
+            if (signature[0] != 'A' ||
+                    signature[1] != 'R' ||
+                    signature[2] != 'C') {
 
-            if (bytesHeader != Format.HEADER_SIZE) {
+                throw new IOException("Arquivo ARC inválido: assinatura incorreta.");
+            }
+
+            int versionMajor = in.readUnsignedByte();
+            int versionMinor = in.readUnsignedByte();
+
+            if (versionMajor != Format.VERSION_MAJOR || versionMinor != Format.VERSION_MINOR) {
                 throw new IOException(
-                        "Arquivo menor que o header."
+                        "Versão ARC não suportada: "
+                                + versionMajor + "." + versionMinor
                 );
             }
 
-            int width = getSize(
-                    headerBuffer[5],
-                    headerBuffer[6]
+            int width = in.readUnsignedShort();
+            int height = in.readUnsignedShort();
+
+            int pixelType = in.readUnsignedByte();
+
+            if (pixelType != 3) {
+                throw new IOException(
+                        "Tipo de pixel não suportado: " + pixelType
+                );
+            }
+
+            // =========================
+            // CRIA A IMAGEM
+            // =========================
+
+            BufferedImage image = new BufferedImage(
+                    width,
+                    height,
+                    BufferedImage.TYPE_INT_RGB
             );
 
-            int height = getSize(
-                    headerBuffer[7],
-                    headerBuffer[8]
-            );
-
-            BufferedImage image =
-                    new BufferedImage(
-                            width,
-                            height,
-                            BufferedImage.TYPE_INT_RGB
-                    );
-
-            // =====================
+            // =========================
             // PIXELS
-            // =====================
+            // =========================
 
-            byte[] buffer = new byte[3];
+            for (int y = 0; y < height; y++) {
 
-            int pixelCount = width * height;
+                for (int x = 0; x < width; x++) {
 
-            for (int pixel = 0; pixel < pixelCount; pixel++) {
+                    int r = in.readUnsignedByte();
+                    int g = in.readUnsignedByte();
+                    int b = in.readUnsignedByte();
 
-                int lidos = bis.readNBytes(
-                        buffer, 0, 3
-                );
+                    int rgb = (r << 16) |
+                            (g << 8)  |
+                            b;
 
-                if (lidos != 3) {
-                    throw new IOException(
-                            "Arquivo terminou antes de todos os pixels. " +
-                                    "Pixel: " + pixel
-                    );
+                    image.setRGB(x, y, rgb);
                 }
-
-                int r = buffer[0] & 0xFF;
-                int g = buffer[1] & 0xFF;
-                int b = buffer[2] & 0xFF;
-
-                int x = pixel % width;
-                int y = pixel / width;
-
-                int rgb =
-                        (r << 16) |
-                                (g << 8) |
-                                b;
-
-                image.setRGB(x, y, rgb);
             }
 
-            return image;
+            // =========================
+            // PNG
+            // =========================
 
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            if (!ImageIO.write(image, "png", fileOutput)) {
+                throw new IOException("Não foi possível escrever o PNG.");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
+

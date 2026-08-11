@@ -1,6 +1,6 @@
 package com.arcanjo.archimage.cli;
 
-import com.arcanjo.archimage.codec.ArcDecode;
+import com.arcanjo.archimage.viewer.ImageView;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
@@ -14,8 +14,6 @@ import java.awt.image.BufferedImage;
         mixinStandardHelpOptions = true
 )
 public class ViewCommand implements Runnable{
-    BufferedImage image;
-
     @Parameters(
             index = "0",
             description = "Input ArcImage file"
@@ -25,22 +23,22 @@ public class ViewCommand implements Runnable{
     @Override
     public void run() {
 
-        ArcDecode decoder = new ArcDecode(input);
+        ImageView image = new ImageView(input);
 
-        BufferedImage image = decoder.decode();
+        BufferedImage img = image.image();
 
         int maxWidth = 800;
         int maxHeight = 600;
 
         double scale = Math.min(
-                (double) maxWidth / image.getWidth(),
-                (double) maxHeight / image.getHeight()
+                (double) maxWidth / img.getWidth(),
+                (double) maxHeight / img.getHeight()
         );
 
-        int newWidth = (int) (image.getWidth() * scale);
-        int newHeight = (int) (image.getHeight() * scale);
+        int newWidth = (int) (img.getWidth() * scale);
+        int newHeight = (int) (img.getHeight() * scale);
 
-        Image scaled = image.getScaledInstance(
+        Image scaled = img.getScaledInstance(
                 newWidth,
                 newHeight,
                 Image.SCALE_SMOOTH
