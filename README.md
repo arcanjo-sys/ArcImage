@@ -1,118 +1,156 @@
 # 🖼️ ArcImage
 
-> Um novo formato de imagem experimental desenvolvido para fins de estudo.
+> Um formato de imagem experimental desenvolvido do zero para estudar armazenamento binário, representação de pixels, codificação e decodificação de imagens.
 
-## 📖 Sobre
+[![Java](https://img.shields.io/badge/Java-17%2B-orange)](https://www.java.com/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Status](https://img.shields.io/badge/status-experimental-yellow)](#status)
 
-**ArcImage** é um formato de arquivo de imagem experimental criado para explorar uma abordagem diferente para armazenamento e representação de imagens digitais.
+## 📖 Sobre o projeto
 
-O projeto busca desenvolver uma especificação própria para imagens, definindo como os dados de uma imagem são organizados, armazenados e interpretados.
+**ArcImage** é um formato de arquivo de imagem experimental criado para explorar como imagens digitais podem ser representadas, armazenadas e interpretadas em um formato binário próprio.
 
-A ideia é construir o formato desde a base, incluindo sua estrutura binária, representação de pixels e posteriormente recursos como compressão e metadados.
+O projeto não pretende apenas criar uma biblioteca para manipulação de imagens. O objetivo principal é estudar e documentar, desde a base, os conceitos envolvidos na criação de um formato de arquivo.
+
+Entre os conceitos explorados estão:
+
+* estrutura de arquivos binários;
+* representação de pixels;
+* encoding e decoding;
+* metadados;
+* versionamento de formatos;
+* compressão;
+* eficiência de armazenamento.
 
 ## 🎯 Objetivos
 
-* 📦 Criar uma estrutura própria de arquivo de imagem
-* 🎨 Armazenar dados de pixels de forma eficiente
-* ⚡ Buscar uma implementação simples e rápida
-* 🔬 Explorar conceitos de formatos binários
-* 🧩 Desenvolver uma especificação aberta e documentada
-* 🚀 Experimentar possíveis técnicas de compressão e otimização
+* [x] Criar a estrutura inicial do formato
+* [x] Implementar leitura de pixels
+* [x] Implementar escrita de imagens
+* [ ] Definir a especificação completa
+* [ ] Adicionar suporte a metadados
+* [ ] Implementar compressão
+* [ ] Criar ferramentas de conversão
+* [ ] Desenvolver visualizadores
+* [ ] Estabilizar a especificação
 
 ## 🧬 Estrutura do formato
 
-O formato utiliza uma estrutura binária própria para representar os dados da imagem.
-
-A especificação está sendo desenvolvida e pode sofrer alterações durante o desenvolvimento.
-
-Exemplo conceitual:
+O arquivo ArcImage é organizado conceitualmente da seguinte maneira:
 
 ```text
 ┌──────────────────────────────┐
-│           HEADER             │
+│            HEADER            │
 ├──────────────────────────────┤
 │       IMAGE METADATA         │
 ├──────────────────────────────┤
-│        PIXEL DATA            │
+│          PIXEL DATA          │
 ├──────────────────────────────┤
-│      OPTIONAL DATA           │
+│        OPTIONAL DATA         │
 └──────────────────────────────┘
 ```
 
 ### Header
 
-O cabeçalho contém informações necessárias para interpretar o arquivo, como:
+O cabeçalho contém as informações necessárias para interpretar o arquivo, incluindo dados como:
 
-* Identificação do formato
-* Versão
-* Largura
-* Altura
-* Profundidade de cor
-* Tipo de armazenamento dos pixels
+* identificação do formato;
+* versão;
+* largura;
+* altura;
+* profundidade de cor;
+* formato de armazenamento dos pixels.
 
-### Pixel Data
+Para conhecer a estrutura binária detalhada, consulte a [especificação do ArcImage](docs/SPECIFICATION.md).
 
-A seção de dados contém os pixels da imagem de acordo com a representação definida pela especificação.
+## 🚀 Começando
 
-## 🛠️ Status
+### Requisitos
 
-> ⚠️ **Projeto experimental**
+* Java 17 ou superior
+* Maven
 
-O formato ainda está em desenvolvimento e sua especificação pode mudar.
+### Clonar o projeto
 
-| Recurso                        | Status                |
-| ------------------------------ | --------------------- |
-| Estrutura básica do arquivo    | 🟢 Implementado       |
-| Leitura de pixels              | 🟢 Implementado       |
-| Escrita de imagens             | 🟢 Implementado       |
-| Metadados                      | 🟡 Em Desenvolvimento |
-| Compressão                     | 🟡 Planejado          |
-| Ferramentas de conversão       | 🔴 Planejado          |
-| Suporte em aplicações externas | 🔴 Futuro             |
+```bash
+git clone https://github.com/arcanjo-sys/ArcImage.git
+cd ArcImage
+```
 
-## 💻 Desenvolvimento
+### Compilar
 
-O projeto está sendo desenvolvido utilizando:
+```bash
+mvn clean package
+```
 
-* **Java**
-* **IntelliJ IDEA**
-* **Git / GitHub**
+### Executar os testes
 
-## 🚀 Roadmap
+```bash
+mvn test
+```
 
-* [x] Definir estrutura inicial do arquivo
-* [x] Definir representação básica dos pixels
-* [x] Implementar decoder
-* [x] Implementar encoder
-* [ ] Finalizar especificação do formato
-* [ ] Adicionar metadados
-* [ ] Desenvolver compressão
-* [ ] Criar ferramentas de conversão
-* [ ] Criar documentação completa da especificação
-* [ ] Desenvolver suporte para visualizadores de imagem
+## 🏗️ Arquitetura
 
-## 📚 Especificação
+A implementação está organizada em componentes responsáveis por diferentes partes do processamento do formato.
 
-A documentação técnica do formato será disponibilizada neste repositório à medida que a especificação evoluir.
+Consulte [Architecture](docs/ARCHITECTURE.md) para conhecer a organização interna do projeto.
 
-> A especificação atual deve ser considerada experimental e não está garantida como estável.
+## 📚 Documentação
 
-## 🤝 Contribuições
+| Documento                              | Descrição                          |
+| -------------------------------------- | ---------------------------------- |
+| [Especificação](docs/SPECIFICATION.md) | Especificação do formato ArcImage  |
+| [Formato binário](docs/FILE_FORMAT.md) | Estrutura byte a byte do arquivo   |
+| [Arquitetura](docs/ARCHITECTURE.md)    | Organização interna do projeto     |
+| [Desenvolvimento](docs/DEVELOPMENT.md) | Guia para desenvolver e contribuir |
+| [Roadmap](docs/ROADMAP.md)             | Próximos objetivos do projeto      |
 
-O projeto está em desenvolvimento e sugestões são bem-vindas.
+## ⚠️ Status
 
-Antes de contribuir, consulte a documentação e a especificação atual do formato.
+O ArcImage é um projeto **experimental**.
+
+A especificação ainda está em desenvolvimento e pode sofrer alterações incompatíveis entre versões.
+
+Portanto, arquivos ArcImage produzidos atualmente não devem ser considerados necessariamente compatíveis com versões futuras.
+
+## 🗺️ Roadmap
+
+### Formato
+
+* [x] Estrutura inicial
+* [x] Representação básica de pixels
+* [x] Decoder
+* [x] Encoder
+* [ ] Especificação formal
+* [ ] Metadados
+* [ ] Compressão
+
+### Ferramentas
+
+* [x] CLI
+* [ ] Conversor de imagens
+* [ ] Visualizador
+* [ ] Ferramentas de inspeção do formato
+
+### Ecossistema
+
+* [ ] Documentação completa
+* [ ] Implementação de referência
+* [ ] Suporte em outras linguagens
+* [ ] Especificação estável
+
+## 🤝 Contribuindo
+
+Contribuições, ideias e sugestões são bem-vindas.
+
+Antes de abrir uma issue ou pull request, consulte o [guia de contribuição](CONTRIBUTING.md).
 
 ## 📜 Licença
 
-Este projeto é disponibilizado sob uma **Licença MIT**.
+Este projeto está disponível sob a licença MIT.
 
-É permitido estudar, modificar e compartilhar o projeto gratuitamente.
-
-Consulte [`LICENSE`](LICENSE) para os termos completos.
+Consulte o arquivo [LICENSE](LICENSE) para obter os termos completos.
 
 ---
 
-<p align="center">
-  <strong>Um novo formato de imagem, construído do zero.</strong>
-</p>
+> Um novo formato de imagem, construído do zero.
