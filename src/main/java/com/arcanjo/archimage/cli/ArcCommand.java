@@ -10,7 +10,8 @@ import picocli.CommandLine.Command;
         subcommands = {
                 EncodeCommand.class,
                 DecodeCommand.class,
-                ViewCommand.class
+                ViewCommand.class,
+                InfoCommand.class
         }
 )
 
