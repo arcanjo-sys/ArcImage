@@ -1,10 +1,10 @@
 # ArcImage File Format
 
-## 1. Visão geral
+## 1. Overview
 
-Um arquivo **ArcImage** é um arquivo binário estruturado em diferentes seções.
+An **ArcImage** file is a binary file structured into different sections.
 
-A estrutura básica é composta por:
+The basic structure consists of:
 
 ```text
 ┌──────────────────────────────┐
@@ -18,24 +18,24 @@ A estrutura básica é composta por:
 └──────────────────────────────┘
 ```
 
-A ordem e a presença das seções opcionais dependem da versão do formato.
+The order and presence of optional sections depend on the format version.
 
 ---
 
 ## 2. Header
 
-O Header contém as informações necessárias para que um decodificador consiga identificar e interpretar o arquivo.
+The Header contains the information required for a decoder to identify and interpret the file.
 
 ### Estrutura
 
-| Campo       | Tamanho | Tipo   | Descrição                 |
+| Field       | Size | Type   | Description                 |
 | ----------- | ------: | ------ | ------------------------- |
-| Magic       | 4 bytes | ASCII  | Identificador do formato  |
-| Version     | 2 bytes | uint16 | Versão do formato         |
-| Width       | 2 bytes | uint16 | Largura da imagem         |
-| Height      | 2 bytes | uint16 | Altura da imagem          |
-| Color Depth |  1 byte | uint8  | Profundidade de cor       |
-| Padding     |  1 byte | uint8  | Reservado para uso futuro |
+| Magic       | 4 bytes | ASCII  | Format identifier  |
+| Version     | 2 bytes | uint16 | Format version         |
+| Width       | 2 bytes | uint16 | Image width         |
+| Height      | 2 bytes | uint16 | Image height          |
+| Color Depth |  1 byte | uint8  | Color depth       |
+| Padding     |  1 byte | uint8  | Reserved for future use |
 
 Total:
 
@@ -45,45 +45,44 @@ Total:
 
 ### Magic
 
-Os primeiros 4 bytes do arquivo identificam o formato como ArcImage.
+The first 4 bytes of the file identify the format as ArcImage.
 
-O valor utilizado é:
+The value used is:
 
 ```text
 ARCX
 ```
 
 
-
 ### Version
 
-Representa a versão da especificação utilizada para criar o arquivo.
+Represents the specification version used to create the file.
 
-O campo possui 2 bytes:
+The field is 2 bytes:
 
 ```text
 uint16
 ```
 
-Exemplo:
+Example:
 
 ```text
 0x0001
 ```
 
-representa a versão `1`.
+represents version `1`.
 
 ### Width
 
-Largura da imagem em pixels.
+Image width in pixels.
 
-Tipo:
+Type:
 
 ```text
 uint16
 ```
 
-O valor máximo representável é:
+The maximum representable value is:
 
 ```text
 65535 pixels
@@ -91,15 +90,15 @@ O valor máximo representável é:
 
 ### Height
 
-Altura da imagem em pixels.
+Image height in pixels.
 
-Tipo:
+Type:
 
 ```text
 uint16
 ```
 
-O valor máximo representável é:
+The maximum representable value is:
 
 ```text
 65535 pixels
@@ -107,69 +106,69 @@ O valor máximo representável é:
 
 ### Color Depth
 
-Indica a quantidade de bits utilizada para representar a informação de cor de cada pixel.
+Indicates the number of bits used to represent the color information of each pixel.
 
-Exemplos possíveis:
+Possible examples:
 
 ```text
 03
 ```
 
-Os valores válidos devem ser definidos pela versão correspondente da especificação.
+Valid values must be defined by the corresponding specification version.
 
 ### Padding
 
-Byte reservado para futuras extensões do formato.
+Byte reserved for future format extensions.
 
-Em versões atuais, esse campo deve ser escrito como:
+In current versions, this field must be written as:
 
 ```text
 0x00
 ```
 
-Um decodificador deve ignorar o valor desse campo caso a especificação da versão não defina outro significado.
+A decoder should ignore this field's value if the version specification does not define another meaning.
 
 ---
 
 # 3. Metadata
 
-Os metadados são armazenados utilizando estruturas chamadas **chunks**.
+Metadata is stored using structures called **chunks**.
 
-Cada chunk possui uma estrutura geral:
+Each chunk has a general structure:
 
 ```text
 ┌──────────────┬──────────────┬─────────────────────┐
 │    Marker    │    Length    │        Data         │
-│   4 bytes    │   2 bytes    │     variável        │
+│   4 bytes    │   2 bytes    │     variable        │
 └──────────────┴──────────────┴─────────────────────┘
 ```
 
-Onde:
+Where:
 
-* `Marker` identifica o tipo do chunk;
-* `Length` informa o tamanho do conteúdo;
-* `Data` contém a informação armazenada.
+* `Marker` identifies the chunk type;
+* `Length` specifies the content size;
+* `Data` contains the stored information.
 
 ---
 
 ## 3.1 AUTH
 
-Armazena o autor da imagem.
+Stores the image author.
 
 ```text
 ┌──────────┬──────────┬────────────────┐
 │   AUTH   │  Length  │      Text      │
-│ 4 bytes  │ 2 bytes  │    variável    │
+│ 4 bytes  │ 2 bytes  │    variable    │
 └──────────┴──────────┴────────────────┘
 ```
 
-| Campo  |  Tamanho | Tipo   |
+| Field  |  Size | Type   |
 | ------ | -------: | ------ |
 | AUTH   |  4 bytes | ASCII  |
 | Length |  2 bytes | uint16 |
-| Text   | variável | ASCII  |
+| Text   | variable | ASCII  |
 
-Exemplo conceitual:
+Conceptual example:
 
 ```text
 AUTH
@@ -181,7 +180,7 @@ Alice
 
 ## 3.2 TIMS
 
-Armazena a informação temporal associada à imagem.
+Stores the time-related information associated with the image.
 
 ```text
 ┌──────────┬──────────┬──────────────┐
@@ -190,34 +189,34 @@ Armazena a informação temporal associada à imagem.
 └──────────┴──────────┴──────────────┘
 ```
 
-| Campo  |  Tamanho | Tipo   |
+| Field  |  Size | Type   |
 | ------ |---------:| ------ |
 | TIMS   |  4 bytes | ASCII  |
 | Length |  2 bytes | uint16 |
-| Text   | variável | ASCII  |
+| Text   | variable | ASCII  |
 
-O significado exato do conteúdo de `TIMS` deve ser definido pela especificação da versão.
+The exact meaning of `TIMS` content must be defined by the version specification.
 
 ---
 
 ## 3.3 SOFT
 
-Identifica o software responsável pela geração da imagem.
+Identifies the software responsible for generating the image.
 
 ```text
 ┌──────────┬──────────┬────────────────┐
 │   SOFT   │  Length  │      Text      │
-│ 4 bytes  │ 2 bytes  │    variável    │
+│ 4 bytes  │ 2 bytes  │    variable    │
 └──────────┴──────────┴────────────────┘
 ```
 
-| Campo  |  Tamanho | Tipo   |
+| Field  |  Size | Type   |
 | ------ | -------: | ------ |
 | SOFT   |  4 bytes | ASCII  |
 | Length |  2 bytes | uint16 |
-| Text   | variável | ASCII  |
+| Text   | variable | ASCII  |
 
-Exemplo:
+Example:
 
 ```text
 SOFT
@@ -229,22 +228,22 @@ ArcImage
 
 ## 3.4 COPY
 
-Armazena informações de copyright.
+Stores copyright information.
 
 ```text
 ┌──────────┬──────────┬────────────────┐
 │   COPY   │  Length  │      Text      │
-│ 4 bytes  │ 2 bytes  │    variável    │
+│ 4 bytes  │ 2 bytes  │    variable    │
 └──────────┴──────────┴────────────────┘
 ```
 
-| Campo  |  Tamanho | Tipo   |
+| Field  |  Size | Type   |
 | ------ | -------: | ------ |
 | COPY   |  4 bytes | ASCII  |
 | Length |  2 bytes | uint16 |
-| Text   | variável | ASCII  |
+| Text   | variable | ASCII  |
 
-Exemplo:
+Example:
 
 ```text
 COPY
@@ -256,11 +255,11 @@ Copyright 2026
 
 # 4. Pixel Data
 
-Após o Metadata, o arquivo pode conter os dados dos pixels.
+After Metadata, the file may contain pixel data.
 
-A representação dos pixels depende do campo `Color Depth`.
+Pixel representation depends on the `Color Depth` field.
 
-Por exemplo, para uma imagem RGB de 24 bits:
+For example, for a 24-bit RGB image:
 
 ```text
 Pixel 0:
@@ -273,7 +272,7 @@ Pixel 2:
 R G B
 ```
 
-Uma imagem com largura `W` e altura `H` possui:
+An image with width `W` and height `H` has:
 
 ```text
 W × H
@@ -281,7 +280,7 @@ W × H
 
 pixels.
 
-Para uma representação RGB de 24 bits:
+For a 24-bit RGB representation:
 
 ```text
 Pixel Data Size = Width × Height × 3
@@ -291,24 +290,24 @@ Pixel Data Size = Width × Height × 3
 
 # 5. Optional Data
 
-Dados opcionais são informações que não são necessárias para representar os pixels da imagem.
+Optional data consists of information that is not required to represent the image pixels.
 
-Exemplos futuros:
+Future examples:
 
 * thumbnails;
-* informações de câmera;
-* perfis de cor;
-* informações de edição;
-* dados de aplicação;
-* extensões específicas.
+* camera information;
+* color profiles;
+* editing information;
+* application data;
+* application-specific extensions.
 
-Esses dados devem utilizar estruturas identificáveis e não devem impedir que um decodificador básico consiga ler os dados essenciais da imagem.
+This data should use identifiable structures and must not prevent a basic decoder from reading the essential image data.
 
 ---
 
-# 6. Ordem dos dados
+# 6. Data Order
 
-Uma implementação pode organizar o arquivo seguindo:
+An implementation may organize the file as follows:
 
 ```text
 HEADER
@@ -317,7 +316,7 @@ PIXEL DATA
 OPTIONAL DATA
 ```
 
-Exemplo:
+Example:
 
 ```text
 ┌────────────────────┐
@@ -337,27 +336,27 @@ Exemplo:
 └────────────────────┘
 ```
 
-A ordem definitiva deve ser considerada parte da especificação quando o formato atingir uma versão estável.
+The definitive order should be considered part of the specification once the format reaches a stable version.
 
 ---
 
-# 7. Integridade
+# 7. Integrity
 
-Uma futura versão do ArcImage poderá adicionar mecanismos de integridade, como:
+A future version of ArcImage may add integrity mechanisms such as:
 
 * checksum;
 * CRC;
 * hash;
-* detecção de arquivos incompletos ou corrompidos.
+* detection of incomplete or corrupted files.
 
-Esses mecanismos ainda não fazem parte da estrutura básica definida atualmente.
+These mechanisms are not yet part of the currently defined basic structure.
 
 ---
 
-# 8. Extensibilidade
+# 8. Extensibility
 
-Novos chunks poderão ser adicionados sem necessariamente alterar o Header.
+New chunks may be added without necessarily changing the Header.
 
-Um leitor que encontrar um chunk desconhecido deve, quando possível, ignorá-lo utilizando o campo `Length` para determinar onde o próximo chunk começa.
+When possible, a reader that encounters an unknown chunk should skip it using the `Length` field to determine where the next chunk begins.
 
-Isso permite que versões futuras adicionem funcionalidades sem quebrar completamente implementações antigas.
+This allows future versions to add functionality without completely breaking older implementations.
