@@ -1,18 +1,18 @@
 # 🖼️ ArcImage
 
-> Um formato de imagem experimental, lossless e desenvolvido do zero em Java.
+> An experimental, lossless image format built from scratch in Java.
 
-**ArcImage** é um projeto experimental que implementa um formato próprio de imagem, incluindo sua estrutura binária, metadados, compressão e reconstrução dos pixels.
+**ArcImage** is an experimental project that implements its own image format, including its binary structure, metadata, compression, and pixel reconstruction.
 
-O principal objetivo do projeto é estudar e experimentar técnicas de armazenamento e compressão de imagens, criando uma implementação própria em vez de depender exclusivamente de formatos tradicionais.
+The main goal of the project is to study and experiment with image storage and compression techniques by creating its own implementation instead of relying exclusively on traditional formats.
 
-> ⚠️ **Status:** experimental. A especificação ainda pode sofrer alterações durante o desenvolvimento.
+> ⚠️ **Status:** experimental. The specification may still change during development.
 
 ---
 
-## ✨ Destaques
+## ✨ Highlights
 
-O ArcImage atualmente utiliza um pipeline de compressão híbrido:
+ArcImage currently uses a hybrid compression pipeline:
 
 ```text
 ┌──────────────────────┐
@@ -21,7 +21,7 @@ O ArcImage atualmente utiliza um pipeline de compressão híbrido:
            │
            ▼
 ┌──────────────────────┐
-│ Filtro adaptativo    │
+│ Adaptive Filter      │
 │ None / Sub / Up      │
 │ Average / Paeth      │
 └──────────┬───────────┘
@@ -40,11 +40,11 @@ O ArcImage atualmente utiliza um pipeline de compressão híbrido:
            │
            ▼
 ┌──────────────────────┐
-│       Arquivo ARC    │
+│       File ARC       │
 └──────────────────────┘
 ```
 
-O processo inverso restaura os dados exatamente:
+The reverse process restores the data exactly:
 
 ```text
 ARC
@@ -53,44 +53,44 @@ DEFLATE
  ↓
 RLE
  ↓
-Filtro inverso
+Inverse filter
  ↓
 RGB original
 ```
 
-O formato foi projetado para trabalhar com **compressão sem perdas (lossless)**. O objetivo é que a imagem reconstruída possua exatamente os mesmos valores de pixel da imagem original.
+The format is designed for **lossless compression**. The goal is for the reconstructed image to have exactly the same pixel values as the original image.
 
 ---
 
-# 🔐 Compressão Lossless
+# 🔐 Lossless Compression
 
-O ArcImage não utiliza quantização ou redução deliberada de qualidade na versão atual.
+ArcImage does not use quantization or deliberate quality reduction in the current version.
 
-O objetivo do codec é:
+The codec's goal is:
 
 ```text
-Imagem original
+Image original
       ↓
     ARC
       ↓
-Imagem reconstruída
+Reconstructed image
 ```
 
 com:
 
 ```text
-pixel_original == pixel_reconstruído
+pixel_original == pixel_reconstructed
 ```
 
-para todos os pixels.
+for every pixel.
 
-Portanto, a redução de tamanho não depende de remover detalhes visuais da imagem.
+Therefore, size reduction does not depend on removing visual details from the image.
 
 ---
 
-# 🧬 Arquitetura do formato
+# 🧬 Format Architecture
 
-Um arquivo ARC possui uma estrutura semelhante a:
+An ARC file has a structure similar to:
 
 ```text
 ┌──────────────────────────────┐
@@ -116,9 +116,9 @@ Um arquivo ARC possui uma estrutura semelhante a:
 
 # 📦 Header
 
-O header possui atualmente **12 bytes**.
+The header is currently **12 bytes**.
 
-| Offset | Tamanho | Campo         |
+| Offset | Size | Field         |
 | -----: | ------: | ------------- |
 | `0x00` | 4 bytes | Signature     |
 | `0x04` |  1 byte | Version Major |
@@ -130,7 +130,7 @@ O header possui atualmente **12 bytes**.
 
 ### Signature
 
-A assinatura utilizada pelo formato é:
+The signature used by the format is:
 
 ```text
 ARCX
@@ -140,9 +140,9 @@ ARCX
 
 # 📐 Dimensões
 
-Largura e altura são armazenadas como **UInt16 Big Endian**.
+Width and height are stored as **UInt16 Big Endian**.
 
-Exemplo:
+Example:
 
 ```text
 Width:
@@ -152,25 +152,25 @@ Height:
 [HIGH BYTE][LOW BYTE]
 ```
 
-A implementação atual suporta dimensões de até:
+The current implementation supports dimensions up to:
 
 ```text
 65535 × 65535
 ```
 
-limitadas pela representação UInt16 utilizada pelo formato.
+limited by the UInt16 representation used by the format.
 
 ---
 
 # 🎨 Cor
 
-A implementação atual trabalha com:
+The current implementation works with:
 
 ```text
 RGB
 ```
 
-utilizando:
+using:
 
 ```text
 8 bits Red
@@ -184,51 +184,51 @@ Total:
 24 bits por pixel
 ```
 
-Alpha/transparência ainda não faz parte do pipeline principal do codec atual.
+Alpha/transparency is not yet part of the current codec's main pipeline.
 
 ---
 
 # 🏷️ Metadados
 
-O formato possui uma estrutura de metadados baseada em:
+The format has a metadata structure based on:
 
 ```text
 TAG + SIZE + DATA
 ```
 
-Onde:
+Where:
 
 ```text
 TAG  = 4 bytes
 SIZE = UInt16
-DATA = conteúdo
+DATA = content
 ```
 
-Atualmente são utilizados campos como:
+Fields currently used include:
 
 ### `AUTH`
 
-Autor responsável pela criação do arquivo.
+Author responsible for creating the file.
 
 ### `SOFT`
 
-Software utilizado para gerar o arquivo.
+Software used to generate the file.
 
 ### `TIMS`
 
-Timestamp da criação do arquivo.
+File creation timestamp.
 
 ### `DATA`
 
-Marca o início dos dados comprimidos da imagem.
+Marks the beginning of the compressed image data.
 
 ---
 
-# 🗜️ Pipeline de compressão
+# 🗜️ Compression Pipeline
 
-## 1. Filtro adaptativo
+## 1. Adaptive Filter
 
-Cada linha da imagem é analisada utilizando cinco filtros:
+Each image row is analyzed using five filters:
 
 ```text
 0 = None
@@ -238,11 +238,11 @@ Cada linha da imagem é analisada utilizando cinco filtros:
 4 = Paeth
 ```
 
-O encoder calcula as cinco possibilidades e seleciona aquela que produz o menor custo para a linha.
+The encoder calculates all five possibilities and selects the one that produces the lowest cost for the row.
 
-Isso transforma padrões espaciais em valores residuais menores e mais repetitivos.
+This transforms spatial patterns into smaller and more repetitive residual values.
 
-Por exemplo:
+For example:
 
 ```text
 100 101 102 103 104 105
@@ -260,45 +260,45 @@ Essa representação é muito mais favorável para os estágios seguintes.
 
 ## 2. RLE
 
-Após o filtro é aplicado **Run-Length Encoding**.
+After filtering, **Run-Length Encoding** is applied.
 
-Sequências repetidas podem ser representadas por:
+Repeated sequences can be represented by:
 
 ```text
-valor + quantidade
+value + amount
 ```
 
-Por exemplo:
+For example:
 
 ```text
 00 00 00 00 00
 ```
 
-pode ser representado conceitualmente como:
+It can be conceptually represented as:
 
 ```text
 RUN(5, 00)
 ```
 
-O RLE atual trabalha sobre os bytes produzidos pelo estágio de filtragem.
+The current RLE operates on the bytes produced by the filtering stage.
 
 ---
 
 ## 3. DEFLATE
 
-Depois do RLE, os dados são submetidos ao **DEFLATE**.
+After RLE, the data is passed through **DEFLATE**.
 
-O DEFLATE combina técnicas de:
+DEFLATE combines:
 
 * LZ77
-* codificação Huffman
+* Huffman coding
 
-A implementação atual utiliza o `Deflater` da biblioteca padrão do Java.
+The current implementation uses Java's standard-library `Deflater`.
 
-Portanto, o pipeline final é:
+Therefore, the final pipeline is:
 
 ```text
-Filtro
+Filter
    ↓
 RLE
    ↓
@@ -309,37 +309,37 @@ DEFLATE
 
 ---
 
-# 🔄 Decodificação
+# 🔄 Decoding
 
-O decoder executa o processo inverso:
+The decoder performs the reverse process:
 
 ```text
 ┌──────────────────────┐
-│      Arquivo ARC     │
+│      File ARC        │
 └──────────┬───────────┘
            ↓
-      Ler Header
+       read Header
            ↓
-       Ler Metadata
+       read Metadata
            ↓
         DEFLATE
            ↓
           RLE
            ↓
-    Restaurar filtros
+    Restore filters
            ↓
-       Restaurar RGB
+      Restore RGB
            ↓
      BufferedImage
 ```
 
-A imagem reconstruída pode então ser utilizada normalmente através da API de imagem do Java.
+The reconstructed image can then be used normally through the Java image API.
 
 ---
 
-# 💻 Tecnologias
+# 💻 Technologies
 
-O projeto atualmente utiliza:
+The project currently uses:
 
 * Java
 * `BufferedImage`
@@ -352,13 +352,13 @@ O projeto atualmente utiliza:
 * GitHub
 * IntelliJ IDEA
 
-Não são necessárias bibliotecas externas para o núcleo atual do codec.
+No external libraries are required for the current codec core.
 
 ---
 
-# 📂 Estrutura do projeto
+# 📂 Project Structure
 
-A estrutura principal é organizada aproximadamente da seguinte forma:
+The main structure is organized approximately as follows:
 
 ```text
 ArcImage/
@@ -393,26 +393,26 @@ ArcImage/
 
 ---
 
-# 🛠️ Status atual
+# 🛠️ Current Status
 
 | Recurso                       | Status                |
 | ----------------------------- | --------------------- |
-| Estrutura binária própria     | 🟢 Implementado       |
-| Header                        | 🟢 Implementado       |
-| RGB                           | 🟢 Implementado       |
-| Encoder                       | 🟢 Implementado       |
-| Decoder                       | 🟢 Implementado       |
-| Metadados                     | 🟢 Implementado       |
-| Filtros adaptativos           | 🟢 Implementado       |
-| RLE                           | 🟢 Implementado       |
-| DEFLATE                       | 🟢 Implementado       |
-| Compressão lossless           | 🟢 Implementado       |
-| Benchmark contra PNG          | 🟡 Em desenvolvimento |
-| Alpha / RGBA                  | 🔴 Planejado          |
-| Codec independente de Java    | 🔴 Futuro             |
-| Ferramentas CLI               | 🔴 Planejado          |
-| Visualizador próprio          | 🔴 Futuro             |
-| Especificação binária estável | 🟡 Em desenvolvimento |
+| Basic format structure     | 🟢 Implemented       |
+| Header                        | 🟢 Implemented       |
+| RGB                           | 🟢 Implemented       |
+| Encoder                       | 🟢 Implemented       |
+| Decoder                       | 🟢 Implemented       |
+| Metadata                     | 🟢 Implemented       |
+| Adaptive filters           | 🟢 Implemented       |
+| RLE                           | 🟢 Implemented       |
+| DEFLATE                       | 🟢 Implemented       |
+| Compression lossless           | 🟢 Implemented       |
+| Automated Benchmark          | 🟡 In development |
+| Alpha / RGBA                  | 🔴 Planned          |
+| Codec independente de Java    | 🔴 Future             |
+| CLI tools               | 🔴 Planned          |
+| Own viewer          | 🔴 Future             |
+| Stable Binary Specification | 🟡 In development |
 
 ---
 
@@ -420,55 +420,55 @@ ArcImage/
 
 ## ARC 2.x
 
-* [x] Estrutura básica do formato
+* [x] Basic format structure
 * [x] Header
 * [x] RGB
 * [x] Encoder
 * [x] Decoder
-* [x] Metadados
-* [x] Filtros adaptativos
+* [x] Metadata
+* [x] Adaptive filters
 * [x] RLE
 * [x] DEFLATE
-* [x] Compressão lossless
-* [ ] Benchmark automatizado
-* [ ] Testes de integridade pixel a pixel
-* [ ] Otimização do RLE
-* [ ] Escolha adaptativa de estratégias
-* [ ] Suporte a imagens RGBA
+* [x] Compression lossless
+* [ ] Automated Benchmark
+* [ ] Pixel-by-pixel integrity testing
+* [ ] RLE Optimization
+* [ ] Adaptive choice of strategies
+* [ ] Supports RGBA images
 
 ## ARC 3.x
 
-Possíveis experimentos:
+Potential experiments:
 
-* Preditores adicionais
-* Transformação de canais
-* RLE orientado a pixels
-* Compressão adaptativa por bloco
-* Melhor seleção de filtros
-* Novos modos de compressão
-* Otimização de velocidade
-* Paralelização
-* Especificação binária estável
+* Additional predictors
+* Channel transformation
+* Pixel-oriented RLE
+* Adaptive block compression
+* Better filter selection
+* New compression modes
+* Speed ​​optimization
+* Parallelization
+* Stable Binary Specification
 
 ---
 
 # 🧪 Benchmark
 
-Os benchmarks do ArcImage devem considerar pelo menos:
+ArcImage benchmarks should consider at least:
 
 ```text
-Tamanho original
-Tamanho PNG
-Tamanho ARC
-Taxa de compressão
-Tempo de compressão
-Tempo de descompressão
-Integridade dos pixels
+Original size
+PNG size
+ARC size
+Compression ratio
+Compression time
+Decompression time
+Pixel integrity
 ```
 
-A integridade deve ser validada comparando a imagem original com a imagem reconstruída pixel a pixel.
+Integrity should be validated by comparing the original image with the reconstructed image pixel by pixel.
 
-Exemplo conceitual:
+Conceptual example:
 
 ```java
 original.getRGB(x, y)
@@ -476,63 +476,63 @@ original.getRGB(x, y)
 decoded.getRGB(x, y)
 ```
 
-para todas as posições válidas da imagem.
+for all valid positions in the image.
 
 ---
 
-# ⚠️ Projeto experimental
+# ⚠️ Experimental Project
 
-O ArcImage ainda está em desenvolvimento.
+ArcImage is still under development.
 
-A especificação binária, os algoritmos de compressão e a estrutura interna do arquivo podem sofrer alterações sem garantia de compatibilidade entre versões.
+The binary specification, compression algorithms, and internal file structure may change without a guarantee of compatibility between versions.
 
-Arquivos gerados por versões experimentais podem não ser compatíveis com versões futuras do codec.
+Files generated by experimental versions may not be compatible with future codec versions.
 
-**Não utilize o formato atual como armazenamento de dados críticos sem manter uma cópia da imagem original.**
+****Do not use the current format for critical data storage without keeping a copy of the original image.****
 
 ---
 
-# 🤝 Contribuições
+# 🤝 Contributions
 
-Contribuições, ideias e experimentos são bem-vindos.
+Contributions, ideas, and experiments are welcome.
 
-Algumas áreas particularmente interessantes:
+Some particularly interesting areas include:
 
-* novos filtros de imagem;
-* algoritmos de predição;
-* RLE adaptativo;
+* new image filters;
+* prediction algorithms;
+* adaptive RLE;
 * LZ77;
 * Huffman;
-* transformações de canais;
-* otimização de memória;
-* otimização de velocidade;
-* testes comparativos com PNG, WebP, AVIF e JPEG XL;
-* ferramentas de análise do formato ARC.
+* channel transforms;
+* memory optimization;
+* speed optimization;
+* comparative tests against PNG, WebP, AVIF, and JPEG XL;
+* ARC format analysis tools.
 
 ---
 
-# 📜 Licença
+# 📜 License
 
-Este projeto é disponibilizado sob a **MIT License**.
+This project is released under the **MIT License**.
 
-Consulte o arquivo `LICENSE` para os termos completos.
+See the `LICENSE` file for the complete terms.
 
 ---
 
-# 👨‍💻 Projeto
+# 👨‍💻 Project
 
 **ArcImage**
 
-Um formato de imagem experimental construído do zero para estudar:
+An experimental image format built from scratch to study:
 
 ```text
-formatos binários
+binary formats
         +
-processamento de imagens
+image processing
         +
-compressão lossless
+lossless compression
         +
-desenvolvimento de codecs
+codec development
 ```
 
-> Construindo um formato de imagem do zero, uma etapa de cada vez.
+> Building an image format from scratch, one step at a time.
