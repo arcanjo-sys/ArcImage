@@ -7,6 +7,7 @@ import picocli.CommandLine.Parameters;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 @Command(
         name = "view",
@@ -25,7 +26,12 @@ public class ViewCommand implements Runnable{
 
         ImageView image = new ImageView(input);
 
-        BufferedImage img = image.image();
+        BufferedImage img = null;
+        try {
+            img = image.image();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         int maxWidth = 800;
         int maxHeight = 600;
