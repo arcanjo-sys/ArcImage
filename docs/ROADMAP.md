@@ -1,10 +1,10 @@
 # ArcImage Roadmap
 
-## Visão
+## Vision
 
-O objetivo do ArcImage é evoluir de um codec experimental para um formato de imagem bem definido, documentado, testável e implementável independentemente da implementação de referência em Java.
+The goal of ArcImage is to evolve from an experimental codec into a well-defined, documented, testable image format that can be implemented independently of the Java reference implementation.
 
-O roadmap representa a direção atual do projeto e pode ser alterado conforme os resultados dos experimentos.
+The roadmap represents the project's current direction and may change based on experiment results.
 
 ---
 
