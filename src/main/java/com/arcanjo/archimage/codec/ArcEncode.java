@@ -27,11 +27,6 @@ import java.util.zip.Deflater;
 public class ArcEncode {
 
     /*
-     * Identificador da versão do codec armazenado depois de DATA.
-     */
-    private static final int CODEC_VERSION = 0x20;
-
-    /*
      * Quantidade de filtros disponíveis.
      */
     private static final int FILTER_COUNT = 5;
@@ -724,7 +719,7 @@ public class ArcEncode {
              * Identificador do codec ARC 2.0.
              */
             bos.write(
-                    CODEC_VERSION
+                    Format.CODEC_VERSION
             );
 
             /*

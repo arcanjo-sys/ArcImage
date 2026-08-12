@@ -4,7 +4,10 @@ import com.arcanjo.archimage.format.Format;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.zip.Inflater;
 
 /**
@@ -23,6 +26,9 @@ import java.util.zip.Inflater;
  * RGB
  */
 public class ImageView {
+    private String author;
+    private String software;
+    private String created;
 
     private static final int CODEC_VERSION = 0x20;
 
@@ -515,6 +521,30 @@ public class ImageView {
     }
 
     // ================================================================
+    // Get Author
+    // ================================================================
+
+    public String getAuthor() {
+        return this.author;
+    }
+
+    // ================================================================
+    // Get Software
+    // ================================================================
+
+    public String getSoftware() {
+        return this.software;
+    }
+
+    // ================================================================
+    // Get Created
+    // ================================================================
+
+    public String getCreated() {
+        return this.created;
+    }
+
+    // ================================================================
     // IMAGE
     // ================================================================
 
@@ -590,8 +620,7 @@ public class ImageView {
             // METADADOS
             // ========================================================
 
-            byte[] tag =
-                    new byte[4];
+            byte[] tag = new byte[4];
 
             while (true) {
 
@@ -611,10 +640,7 @@ public class ImageView {
                                 + tagName
                 );
 
-                if (
-                        tagName.equals("DATA")
-                ) {
-
+                if (tagName.equals("DATA")) {
                     break;
                 }
 
@@ -635,6 +661,46 @@ public class ImageView {
                         bis,
                         metadata
                 );
+
+                String value =
+                        new String(
+                                metadata,
+                                StandardCharsets.UTF_8
+                        );
+
+                switch (tagName) {
+
+                    case "AUTH":
+                        author = value;
+                        break;
+
+                    case "SOFT":
+                        software = value;
+                        break;
+
+                    case "TIMS":
+                        long timestamp =
+                                ByteBuffer
+                                        .wrap(metadata)
+                                        .getLong();
+
+                        Instant instant = Instant.ofEpochMilli(timestamp);
+
+                        String created =
+                                DateTimeFormatter
+                                        .ISO_INSTANT
+                                        .format(instant);
+
+
+                        this.created = created;
+                        break;
+
+                    default:
+                        System.out.println(
+                            "[ARC] Unknown metadata: "
+                                    + tagName
+                        );
+                }
             }
 
             // ========================================================

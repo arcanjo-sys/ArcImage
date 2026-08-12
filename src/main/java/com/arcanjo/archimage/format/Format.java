@@ -13,6 +13,11 @@ public final class Format {
     public static final byte VERSION_MAJOR = 2;
     public static final byte VERSION_MINOR = 0;
 
+    /*
+     * Identificador da versão do codec armazenado depois de DATA.
+     */
+    public static final int CODEC_VERSION = 0x20;
+
     // Formato de cor
     public static final byte COLOR_RGB = 3;
 
