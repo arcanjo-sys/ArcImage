@@ -1,8 +1,8 @@
 # ArcImage File Format
 
-## 1. Visão geral
+## 1. Overview
 
-Um arquivo ArcImage é um arquivo binário estruturado em:
+An ArcImage file is a binary file structured as:
 
 ```text
 ┌──────────────────────────────┐
@@ -18,7 +18,7 @@ Um arquivo ArcImage é um arquivo binário estruturado em:
 └──────────────────────────────┘
 ```
 
-A versão atual do codec utiliza:
+The current codec version uses:
 
 ```text
 RGB
@@ -34,7 +34,7 @@ DEFLATE
 
 # 2. Header
 
-O header possui 12 bytes.
+The header is 12 bytes.
 
 | Offset |    Size | Field         |
 | -----: | ------: | ------------- |
@@ -50,13 +50,13 @@ O header possui 12 bytes.
 
 ## 2.1 Magic
 
-Os primeiros quatro bytes identificam o formato:
+The first four bytes identify the format:
 
 ```text
 ARCX
 ```
 
-Em hexadecimal:
+In hexadecimal:
 
 ```text
 41 52 43 58
@@ -66,23 +66,23 @@ Em hexadecimal:
 
 ## 2.2 Version
 
-A versão principal e secundária do formato são armazenadas no header.
+The major and minor format versions are stored in the header.
 
-A interpretação exata deve seguir a versão correspondente da especificação.
+The exact interpretation must follow the corresponding specification version.
 
 ---
 
 ## 2.3 Width
 
-Largura da imagem.
+Image width.
 
-Tipo:
+Type:
 
 ```text
 uint16
 ```
 
-A implementação atual suporta:
+The current implementation supports:
 
 ```text
 1 - 65535 pixels
@@ -92,15 +92,15 @@ A implementação atual suporta:
 
 ## 2.4 Height
 
-Altura da imagem.
+Image height.
 
-Tipo:
+Type:
 
 ```text
 uint16
 ```
 
-A implementação atual suporta:
+The current implementation supports:
 
 ```text
 1 - 65535 pixels
@@ -110,19 +110,19 @@ A implementação atual suporta:
 
 ## 2.5 Color Format
 
-A implementação atual trabalha com:
+The current implementation works with:
 
 ```text
 RGB
 ```
 
-Cada pixel possui:
+Each pixel has:
 
 ```text
 R G B
 ```
 
-com 8 bits por componente.
+with 8 bits per component.
 
 Total:
 
@@ -135,9 +135,9 @@ Total:
 
 ## 2.6 Padding
 
-Byte reservado para futuras extensões.
+Byte reserved for future extensions.
 
-Na versão atual:
+In the current version:
 
 ```text
 0x00
@@ -147,20 +147,20 @@ Na versão atual:
 
 # 3. Metadata
 
-Os metadados são armazenados utilizando chunks.
+Metadata is stored using chunks.
 
-Estrutura:
+Structure:
 
 ```text
 ┌────────────┬────────────┬──────────────┐
 │   Marker   │   Length   │     Data     │
-│  4 bytes   │  2 bytes   │   variável   │
+│  4 bytes   │  2 bytes   │   variable   │
 └────────────┴────────────┴──────────────┘
 ```
 
-`Length` utiliza dois bytes.
+`Length` uses two bytes.
 
-O tamanho máximo de um chunk individual é:
+The maximum size of an individual chunk is:
 
 ```text
 65535 bytes
@@ -170,7 +170,7 @@ O tamanho máximo de um chunk individual é:
 
 # 4. AUTH
 
-Identifica o autor associado à geração do arquivo.
+Identifies the author associated with file generation.
 
 ```text
 AUTH
@@ -178,15 +178,15 @@ Length
 Data
 ```
 
-O conteúdo é armazenado como texto UTF-8 pela implementação atual.
+The content is stored as UTF-8 text by the current implementation.
 
 ---
 
 # 5. SOFT
 
-Identifica o software responsável pela geração do arquivo.
+Identifies the software responsible for generating the file.
 
-Exemplo conceitual:
+Conceptual example:
 
 ```text
 SOFT
@@ -197,23 +197,23 @@ ArcImage
 
 # 6. TIMS
 
-Armazena o timestamp associado à criação do arquivo.
+Stores the timestamp associated with file creation.
 
-A implementação atual armazena o timestamp como um valor de 64 bits.
+The current implementation stores the timestamp as a 64-bit value.
 
 ---
 
 # 7. DATA
 
-O marker:
+The marker:
 
 ```text
 DATA
 ```
 
-indica o início dos dados codificados.
+indicates the beginning of the encoded data.
 
-A estrutura atual é:
+The current structure is:
 
 ```text
 DATA
@@ -226,7 +226,7 @@ Compressed Data
 
 ## 7.1 Codec Version
 
-Um byte identifica a implementação do codec utilizada para codificar os dados.
+One byte identifies the codec implementation used to encode the data.
 
 Na implementação ARC 2.0:
 
@@ -234,25 +234,25 @@ Na implementação ARC 2.0:
 0x20
 ```
 
-Esse campo permite que futuras versões utilizem pipelines de compressão diferentes.
+This field allows future versions to use different compression pipelines.
 
 ---
 
 ## 7.2 Compressed Size
 
-O tamanho dos dados comprimidos é armazenado como:
+The compressed data size is stored as:
 
 ```text
 uint32
 ```
 
-O valor representa somente o bloco `Compressed Data`.
+The value represents only the `Compressed Data` block.
 
 ---
 
 ## 7.3 Compressed Data
 
-Os dados possuem o seguinte pipeline:
+The data uses the following pipeline:
 
 ```text
 RGB
@@ -264,15 +264,15 @@ RLE
 DEFLATE
 ```
 
-Portanto, o conteúdo armazenado em `Compressed Data` é um stream DEFLATE cujo conteúdo descompactado corresponde ao stream RLE.
+Therefore, the content stored in `Compressed Data` is a DEFLATE stream whose decompressed content corresponds to the RLE stream.
 
 ---
 
 # 8. Filtered Image Data
 
-Antes do RLE, a imagem é organizada por linhas.
+Before RLE, the image is organized by rows.
 
-Cada linha possui:
+Each row has:
 
 ```text
 Filter Type
@@ -285,7 +285,7 @@ Para uma imagem com largura `W`:
 Row Size = 1 + (W × 3)
 ```
 
-O primeiro byte identifica o filtro.
+The first byte identifies the filter.
 
 Valores:
 
@@ -301,7 +301,7 @@ Valores:
 
 # 9. Filter None
 
-Nenhuma predição é aplicada.
+No prediction is applied.
 
 ```text
 Filtered = Raw
@@ -311,13 +311,13 @@ Filtered = Raw
 
 # 10. Filter Sub
 
-Cada componente é calculado em relação ao componente equivalente três bytes anteriormente na mesma linha.
+Each component is calculated relative to the equivalent component three bytes earlier in the same row.
 
 ```text
 Filtered = Raw - Left
 ```
 
-Para o primeiro pixel:
+For the first pixel:
 
 ```text
 Left = 0
@@ -327,13 +327,13 @@ Left = 0
 
 # 11. Filter Up
 
-Cada byte é calculado em relação ao byte equivalente da linha anterior.
+Each byte is calculated relative to the equivalent byte in the previous row.
 
 ```text
 Filtered = Raw - Up
 ```
 
-Na primeira linha:
+On the first row:
 
 ```text
 Up = 0
@@ -343,13 +343,13 @@ Up = 0
 
 # 12. Filter Average
 
-O preditor é:
+The predictor is:
 
 ```text
 floor((Left + Up) / 2)
 ```
 
-Então:
+Then:
 
 ```text
 Filtered = Raw - Average(Left, Up)
@@ -359,7 +359,7 @@ Filtered = Raw - Average(Left, Up)
 
 # 13. Filter Paeth
 
-O preditor Paeth utiliza:
+The Paeth predictor uses:
 
 ```text
 Left
@@ -367,21 +367,21 @@ Up
 UpperLeft
 ```
 
-para selecionar o valor mais próximo da previsão:
+to select the value closest to the prediction:
 
 ```text
 P = Left + Up - UpperLeft
 ```
 
-O valor entre `Left`, `Up` e `UpperLeft` com menor distância de `P` é utilizado.
+The value among `Left`, `Up`, and `UpperLeft` with the smallest distance from `P` is used.
 
 ---
 
 # 14. RLE
 
-O stream filtrado é codificado utilizando Run-Length Encoding.
+The filtered stream is encoded using Run-Length Encoding.
 
-O byte de controle possui:
+The control byte has:
 
 ```text
 bit 7 = tipo
@@ -394,13 +394,13 @@ bits 6-0 = quantidade - 1
 0xxxxxxx
 ```
 
-A quantidade é:
+The count is:
 
 ```text
 (control & 0x7F) + 1
 ```
 
-seguida pelos bytes literais.
+followed by the literal bytes.
 
 ### Run
 
@@ -408,44 +408,44 @@ seguida pelos bytes literais.
 1xxxxxxx
 ```
 
-A quantidade é:
+The count is:
 
 ```text
 (control & 0x7F) + 1
 ```
 
-seguida por um único byte que será repetido.
+followed by a single byte that will be repeated.
 
 ---
 
 # 15. DEFLATE
 
-Após RLE, o resultado é comprimido utilizando DEFLATE.
+After RLE, the result is compressed using DEFLATE.
 
-A implementação de referência utiliza:
+The reference implementation uses:
 
 ```java
 java.util.zip.Deflater
 ```
 
-na codificação e:
+for encoding and:
 
 ```java
 java.util.zip.Inflater
 ```
 
-na decodificação.
+for decoding.
 
-O DEFLATE fornece:
+DEFLATE provides:
 
-* compressão baseada em LZ77;
-* codificação Huffman.
+* LZ77-based compression;
+* Huffman coding.
 
 ---
 
 # 16. Decoding
 
-O decoder executa:
+The decoder performs:
 
 ```text
 Compressed Data
@@ -465,48 +465,48 @@ Reverse Filter
 
 # 17. RGB Pixel Representation
 
-Cada pixel possui três componentes:
+Each pixel has three components:
 
 ```text
 R G B
 ```
 
-Cada componente possui 8 bits.
+Each component has 8 bits.
 
-Portanto:
+Therefore:
 
 ```text
 Pixel = 24 bits
 ```
 
-Para uma imagem:
+For an image:
 
 ```text
 Width = W
 Height = H
 ```
 
-a representação RGB não comprimida possui:
+The uncompressed RGB representation has:
 
 ```text
 W × H × 3 bytes
 ```
 
-O valor acima representa o tamanho dos pixels antes dos filtros e da compressão.
+The value above represents the pixel size before filtering and compression.
 
 ---
 
 # 18. Endianness
 
-Valores inteiros multi-byte utilizados pelo formato são armazenados em **Big Endian (network byte order)**.
+Multi-byte integer values used by the format are stored in **Big Endian (network byte order)**.
 
-Exemplo:
+Example:
 
 ```text
 0x12345678
 ```
 
-é armazenado como:
+is stored as:
 
 ```text
 12 34 56 78
@@ -516,17 +516,17 @@ Exemplo:
 
 # 19. Compatibility
 
-Um decoder deve validar a versão do formato e do codec antes de interpretar os dados.
+A decoder must validate the format and codec versions before interpreting the data.
 
-Arquivos gerados por pipelines incompatíveis não devem ser interpretados como se fossem arquivos compatíveis.
+Files generated by incompatible pipelines must not be interpreted as compatible files.
 
-Mudanças incompatíveis devem resultar em uma nova versão de formato ou codec.
+Incompatible changes must result in a new format or codec version.
 
 ---
 
 # 20. Future Extensions
 
-Possíveis extensões:
+Possible extensions:
 
 * RGBA;
 * grayscale;
@@ -539,4 +539,4 @@ Possíveis extensões:
 * additional metadata;
 * streaming data.
 
-Essas extensões devem ser documentadas antes de serem incorporadas à especificação estável.
+These extensions must be documented before being incorporated into the stable specification.
