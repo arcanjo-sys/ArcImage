@@ -1,28 +1,28 @@
 # ArcImage Architecture
 
-## 1. Visão geral
+## 1. Overview
 
-O ArcImage é um formato de imagem experimental com foco em **compressão lossless**, representação binária própria e implementação independente da estrutura interna de imagens do Java.
+ArcImage is an experimental image format focused on **lossless compression**, its own binary representation, and an implementation independent of Java's internal image structures.
 
-A arquitetura atual é composta por:
+The current architecture consists of:
 
-* representação da imagem;
-* filtros preditivos;
+* image representation;
+* predictive filters;
 * RLE;
 * DEFLATE;
 * encoder;
 * decoder;
 * viewer;
-* metadados;
-* estrutura binária do arquivo.
+* metadata;
+* binary file structure.
 
-A implementação atual trabalha com imagens **RGB de 24 bits por pixel**.
+The current implementation works with **24-bit-per-pixel RGB** images.
 
 ---
 
-## 2. Pipeline de encoding
+## 2. Encoding Pipeline
 
-A versão atual utiliza o seguinte pipeline:
+The current version uses the following pipeline:
 
 ```text
                  RGB Image
@@ -54,15 +54,15 @@ A versão atual utiliza o seguinte pipeline:
                ARC File
 ```
 
-O processo é lossless.
+The process is lossless.
 
-Nenhuma informação de pixel é descartada durante o processo de compressão.
+No pixel information is discarded during compression.
 
 ---
 
-## 3. Pipeline de decoding
+## 3. Decoding Pipeline
 
-O decoder executa o processo inverso:
+The decoder performs the reverse process:
 
 ```text
                ARC File
@@ -96,7 +96,7 @@ O decoder executa o processo inverso:
 
 ## 4. Adaptive Filtering
 
-Antes da compressão, cada linha da imagem é analisada utilizando cinco filtros.
+Before compression, each image row is analyzed using five filters.
 
 ```text
 0 = None
@@ -106,13 +106,13 @@ Antes da compressão, cada linha da imagem é analisada utilizando cinco filtros
 4 = Paeth
 ```
 
-Para cada linha, o encoder gera as cinco representações e calcula um custo para cada uma.
+For each row, the encoder generates all five representations and calculates a cost for each one.
 
-A representação com menor custo é selecionada.
+The representation with the lowest cost is selected.
 
 ### None
 
-Não aplica predição.
+No prediction applies.
 
 ```text
 F(x) = Raw(x)
@@ -120,7 +120,7 @@ F(x) = Raw(x)
 
 ### Sub
 
-Prediz o pixel utilizando o valor à esquerda.
+Predicts the pixel using the value on the left.
 
 ```text
 F(x) = Raw(x) - Left(x)
@@ -128,7 +128,7 @@ F(x) = Raw(x) - Left(x)
 
 ### Up
 
-Prediz o pixel utilizando o valor da linha anterior.
+Predicts the pixel using the value from the previous row.
 
 ```text
 F(x) = Raw(x) - Up(x)
@@ -136,7 +136,7 @@ F(x) = Raw(x) - Up(x)
 
 ### Average
 
-Utiliza a média entre os valores à esquerda e acima.
+Uses the average of the values on the left and above.
 
 ```text
 F(x) = Raw(x) - floor((Left(x) + Up(x)) / 2)
@@ -144,7 +144,7 @@ F(x) = Raw(x) - floor((Left(x) + Up(x)) / 2)
 
 ### Paeth
 
-Utiliza o preditor Paeth baseado em:
+Use the Paeth predictor based on:
 
 ```text
 Left
@@ -152,19 +152,19 @@ Up
 UpperLeft
 ```
 
-Esses filtros transformam dados de imagem em resíduos mais previsíveis.
+These filters transform image data into more predictable residuals.
 
 ---
 
 ## 5. RLE
 
-Após a filtragem, o resultado passa por Run-Length Encoding.
+After filtering, the result passes through Run-Length Encoding.
 
-O RLE representa sequências repetidas de bytes de maneira compacta.
+RLE represents repeated byte sequences compactly.
 
-O encoder evita utilizar RLE quando uma repetição não proporciona vantagem.
+The encoder avoids using RLE when a repetition provides no benefit.
 
-Estruturalmente:
+Structurally:
 
 ```text
 Control Byte
@@ -174,32 +174,32 @@ Control Byte
      └── Run
 ```
 
-O decoder restaura os bytes originais antes da etapa de filtragem inversa.
+The decoder restores the original bytes before the reverse-filtering stage.
 
 ---
 
 ## 6. DEFLATE
 
-Após RLE, os dados são processados pelo algoritmo DEFLATE.
+After RLE, the data is processed by the DEFLATE algorithm.
 
-A implementação atual utiliza:
+The current implementation uses:
 
 ```java
 java.util.zip.Deflater
 ```
 
-e o decoder utiliza:
+and the decoder uses:
 
 ```java
 java.util.zip.Inflater
 ```
 
-O DEFLATE combina técnicas de:
+DEFLATE combines:
 
 * LZ77;
-* codificação Huffman.
+* Huffman coding.
 
-Assim, a arquitetura completa combina três níveis de compressão:
+Thus, the complete architecture combines three levels of compression:
 
 ```text
 Spatial Prediction
@@ -213,45 +213,45 @@ LZ77/Huffman
 
 ## 7. Encoder
 
-O encoder é responsável por:
+The encoder is responsible for:
 
-1. carregar a imagem;
-2. validar dimensões;
-3. converter os pixels para RGB;
-4. gerar filtros adaptativos;
-5. aplicar RLE;
-6. aplicar DEFLATE;
-7. construir o header;
-8. escrever metadados;
-9. escrever o bloco `DATA`;
-10. gerar o arquivo `.arc`.
+1. load the image;
+2. validate dimensions;
+3. convert pixels to RGB;
+4. generate adaptive filters;
+5. apply RLE;
+6. apply DEFLATE;
+7. build the header;
+8. write metadata;
+9. write the `DATA` block;
+10. generate the `.arc` file.
 
 ---
 
 ## 8. Decoder
 
-O decoder é responsável por:
+The decoder is responsible for:
 
-1. validar a assinatura;
-2. ler dimensões;
-3. identificar o codec;
-4. ler metadados;
-5. ler o bloco comprimido;
-6. executar DEFLATE;
-7. executar RLE inverso;
-8. restaurar os filtros;
-9. reconstruir os pixels RGB;
-10. produzir a imagem final.
+1. validate the signature;
+2. read dimensions;
+3. identify the codec;
+4. read metadata;
+5. read the compressed block;
+6. run DEFLATE;
+7. run reverse RLE;
+8. restore filters;
+9. reconstruct RGB pixels;
+10. produce the final image.
 
 ---
 
 ## 9. Viewer
 
-O Viewer utiliza o decoder para reconstruir a imagem e apresentá-la ao usuário.
+The Viewer uses the decoder to reconstruct the image and present it to the user.
 
-O Viewer não deve implementar uma segunda lógica de decodificação.
+The Viewer should not implement a second decoding logic.
 
-A arquitetura recomendada é:
+The recommended architecture is:
 
 ```text
 ARC File
@@ -266,13 +266,13 @@ BufferedImage
 Viewer
 ```
 
-Isso evita divergências entre o comportamento do decoder e do visualizador.
+This prevents discrepancies between decoder and viewer behavior.
 
 ---
 
 ## 10. File Structure
 
-A estrutura lógica atual é:
+The current logical structure is:
 
 ```text
 HEADER
@@ -283,22 +283,22 @@ DATA
     COMPRESSED DATA
 ```
 
-O `DATA` marca o início da representação comprimida.
+`DATA` marks the beginning of the compressed representation.
 
 ---
 
 ## 11. Metadata
 
-Os metadados utilizam chunks:
+Metadata uses chunks:
 
 ```text
 ┌────────────┬────────────┬──────────────┐
 │   Marker   │   Length   │     Data     │
-│  4 bytes   │  2 bytes   │   variável   │
+│  4 bytes   │  2 bytes   │   variable   │
 └────────────┴────────────┴──────────────┘
 ```
 
-Chunks atualmente utilizados pela implementação incluem:
+Chunks currently used by the implementation include:
 
 ```text
 AUTH
@@ -306,30 +306,30 @@ SOFT
 TIMS
 ```
 
-Novos chunks podem ser adicionados no futuro.
+New chunks may be added in the future.
 
 ---
 
 ## 12. Error Handling
 
-O decoder deve rejeitar arquivos com:
+The decoder must reject files with:
 
-* assinatura inválida;
-* dimensões inválidas;
-* codec desconhecido;
-* dados comprimidos truncados;
-* RLE inválido;
-* filtros inválidos;
-* tamanho inconsistente;
-* dados de imagem incompletos.
+* invalid signature;
+* invalid dimensions;
+* unknown codec;
+* truncated compressed data;
+* invalid RLE;
+* invalid filters;
+* inconsistent size;
+* incomplete image data.
 
-Erros de formato devem ser tratados separadamente de erros de I/O sempre que possível.
+Format errors should be handled separately from I/O errors whenever possible.
 
 ---
 
 ## 13. Lossless Guarantee
 
-A propriedade fundamental do codec é:
+The fundamental property of the codec is:
 
 ```text
 Original RGB
@@ -337,58 +337,58 @@ Original RGB
 Decoded RGB
 ```
 
-para todos os pixels.
+for every pixel.
 
-A validação recomendada é uma comparação pixel a pixel:
+The recommended validation is a pixel-by-pixel comparison:
 
 ```java
 original.getRGB(x, y) == decoded.getRGB(x, y)
 ```
 
-para toda a área da imagem.
+across the entire image.
 
 ---
 
-## 14. Extensibilidade
+## 14. Extensibility
 
-A arquitetura foi projetada para permitir futuras extensões:
+The architecture was designed to allow future extensions:
 
 * RGBA;
-* novos filtros;
-* novos algoritmos de compressão;
-* transformação de canais;
-* checksums;
-* perfis de cor;
-* thumbnails;
-* streaming;
-* compressão por blocos.
+* New filters;
+* New compression algorithms;
+* Channel transformation;
+* Checksums;
+* Color profiles;
+* Thumbnails;
+* Streaming;
+* Block compression.
 
-Extensões incompatíveis devem ser identificadas através do versionamento do formato ou do codec.
+Incompatible extensions must be identified through format or codec versioning.
 
 ---
 
-## 15. Princípios
+## 15. Principles
 
 ### Lossless
 
-Nenhum pixel deve ser perdido durante a compressão.
+No pixel should be lost during compression.
 
 ### Simplicidade
 
-A estrutura deve permanecer compreensível e analisável.
+The structure should remain understandable and inspectable.
 
-### Extensibilidade
+### Extensibility
 
-O formato deve permitir novas funcionalidades sem comprometer sua estrutura básica.
+The format should allow new functionality without compromising its basic structure.
 
 ### Portabilidade
 
-A especificação deve ser independente da implementação Java.
+The specification should be independent of the Java implementation.
 
 ### Determinismo
 
-O processo de encoding deve possuir comportamento previsível para uma determinada entrada e configuração.
+The encoding process should behave predictably for a given input and configuration.
 
-### Documentação
+### Documentation
 
-A especificação deve ser suficiente para permitir implementações independentes do codec.
+The specification should be sufficient to enable independent codec implementations.
