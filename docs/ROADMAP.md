@@ -2,165 +2,224 @@
 
 ## Visão
 
-O objetivo do ArcImage é evoluir de um projeto experimental para uma especificação de formato de imagem bem definida, documentada e implementável.
+O objetivo do ArcImage é evoluir de um codec experimental para um formato de imagem bem definido, documentado, testável e implementável independentemente da implementação de referência em Java.
 
-Este roadmap representa a direção planejada do projeto e pode ser alterado conforme o desenvolvimento.
+O roadmap representa a direção atual do projeto e pode ser alterado conforme os resultados dos experimentos.
 
 ---
 
 # Phase 1 — Core Format
 
-### Header
-
 * [x] Magic
 * [x] Version
 * [x] Width
 * [x] Height
-* [x] Color Depth
+* [x] Color format
 * [x] Padding
-
-### Pixel Data
-
-* [x] Representação básica dos pixels
-* [ ] Definir formalmente todos os formatos de pixel suportados
-* [ ] Documentar ordem dos canais
-* [ ] Documentar limites de cada formato
-
-### Encoder
-
-* [x] Implementação inicial
-* [ ] Validação completa do Header
-* [ ] Validação dos pixels
-* [ ] Testes automatizados
-
-### Decoder
-
-* [x] Implementação inicial
-* [ ] Validação do Magic
-* [ ] Validação da versão
-* [ ] Tratamento de arquivos truncados
-* [ ] Testes automatizados
+* [x] RGB representation
+* [x] Encoder
+* [x] Decoder
+* [x] Viewer
 
 ---
 
 # Phase 2 — Metadata
 
-### Chunks
-
 * [x] AUTH
-* [x] TIMS
 * [x] SOFT
-* [x] COPY
-* [ ] Definir regras formais de ordenação
-* [ ] Definir comportamento para chunks desconhecidos
-* [ ] Definir limite máximo de chunks
-* [ ] Definir encoding oficial
+* [x] TIMS
+* [ ] COPY
+* [ ] Formal metadata ordering
+* [ ] Unknown chunk handling
+* [ ] Metadata limits
+* [ ] Formal encoding definition
 
 ---
 
-# Phase 3 — Specification
+# Phase 3 — Lossless Compression
 
-* [ ] Finalizar `SPECIFICATION.md`
-* [ ] Finalizar `FILE_FORMAT.md`
-* [ ] Definir Endianness
-* [ ] Definir todos os valores válidos de Color Depth
-* [ ] Definir estrutura definitiva dos Pixel Data
-* [ ] Definir estrutura definitiva dos chunks
-* [ ] Definir regras de validação
-* [ ] Definir comportamento de erros
-* [ ] Criar exemplos binários
-* [ ] Criar arquivos de referência
-
----
-
-# Phase 4 — Compression
-
-* [x] Definir necessidade de compressão
-* [ ] Avaliar algoritmos
-* [ ] Definir formato dos dados comprimidos
-* [ ] Adicionar campo ou chunk de compressão
-* [ ] Implementar encoder
-* [ ] Implementar decoder
-* [ ] Criar testes de compressão
-* [ ] Comparar tamanho dos arquivos
+* [x] Adaptive filtering
+* [x] None filter
+* [x] Sub filter
+* [x] Up filter
+* [x] Average filter
+* [x] Paeth filter
+* [x] Per-row filter selection
+* [x] RLE
+* [x] DEFLATE
+* [x] LZ77 through DEFLATE
+* [x] Huffman coding through DEFLATE
+* [x] Decoder pipeline
+* [ ] Adaptive RLE strategy
+* [ ] Compression benchmarks
+* [ ] Compression speed benchmarks
+* [ ] Memory benchmarks
 
 ---
 
-# Phase 5 — Integrity
+# Phase 4 — Validation
 
-* [ ] Avaliar checksum
-* [ ] Avaliar CRC
-* [ ] Avaliar hash
-* [ ] Definir mecanismo oficial
-* [ ] Implementar validação
-* [ ] Implementar geração
-* [ ] Testar arquivos corrompidos
-
----
-
-# Phase 6 — Tooling
-
-Criar ferramentas para facilitar o uso e desenvolvimento do formato.
-
-* [X] CLI
-* [ ] Conversor PNG → ArcImage
-* [ ] Conversor JPEG → ArcImage
-* [ ] Conversor ArcImage → PNG
-* [ ] Inspector de arquivos
-* [ ] Visualizador
-* [ ] Gerador de arquivos de teste
+* [ ] Pixel-by-pixel round-trip tests
+* [ ] Random image tests
+* [ ] Solid-color tests
+* [ ] Gradient tests
+* [ ] High-detail photographic tests
+* [ ] Noise tests
+* [ ] Large image tests
+* [ ] Corrupted file tests
+* [ ] Truncated file tests
+* [ ] Invalid codec tests
+* [ ] Invalid RLE tests
+* [ ] Invalid filter tests
 
 ---
 
-# Phase 7 — Ecosystem
+# Phase 5 — Benchmarking
 
-* [ ] API Java estável
-* [ ] Documentação da API
-* [ ] Implementação em outra linguagem
-* [ ] Exemplos de implementação
-* [ ] Test suite compartilhada
-* [ ] Arquivos de referência
-* [ ] Especificação independente da implementação Java
+A standardized benchmark suite will compare ArcImage against other lossless image representations.
 
----
+The benchmark should control:
 
-# Phase 8 — Stable Format
+* image dimensions;
+* color depth;
+* RGB/RGBA representation;
+* source pixels;
+* compression level;
+* output size;
+* encoding time;
+* decoding time;
+* memory usage.
 
-Antes de declarar uma versão estável:
+Initial comparison target:
 
-* [ ] Especificação completa
-* [ ] Encoder de referência
-* [ ] Decoder de referência
-* [ ] Testes abrangentes
-* [ ] Arquivos de teste públicos
-* [ ] Compatibilidade documentada
-* [ ] Versionamento definido
-* [ ] Política de breaking changes
-* [ ] Documentação revisada
+```text
+PNG RGB  ↔  ARC RGB
+```
 
----
+Future comparison:
 
-# Long-term Goals
+```text
+PNG RGBA  ↔  ARC RGBA
+```
 
-No futuro, o ArcImage poderá oferecer suporte a:
-
-* diferentes espaços de cor;
-* diferentes profundidades de cor;
-* transparência;
-* compressão;
-* thumbnails;
-* perfis de cor;
-* metadados avançados;
-* animações;
-* múltiplas imagens por arquivo;
-* extensões específicas de aplicação.
-
-Esses recursos só devem ser adicionados quando houver uma necessidade clara e uma especificação suficientemente definida.
+Benchmark results should not be generalized from a small number of images.
 
 ---
 
-# Status
+# Phase 6 — RGBA
 
-O ArcImage permanece em desenvolvimento experimental.
+* [ ] RGBA pixel format
+* [ ] Alpha channel encoding
+* [ ] Alpha channel filtering
+* [ ] Alpha channel compression
+* [ ] RGBA decoding
+* [ ] RGBA integrity tests
+* [ ] RGB vs RGBA benchmark parity
 
-Itens deste roadmap não representam necessariamente compromissos de implementação ou datas de lançamento.
+---
+
+# Phase 7 — Compression Improvements
+
+Potential experiments:
+
+* [ ] Pixel-oriented RLE
+* [ ] Channel-oriented RLE
+* [ ] Separate RGB channels
+* [ ] Channel transforms
+* [ ] Block-based compression
+* [ ] Better filter cost functions
+* [ ] Adaptive choice between compression strategies
+* [ ] Compression strategy selection based on image statistics
+* [ ] Additional entropy coding experiments
+
+The encoder should prefer the smallest valid representation rather than assuming that a single compression strategy is optimal for every image.
+
+---
+
+# Phase 8 — Integrity
+
+* [ ] Checksum evaluation
+* [ ] CRC evaluation
+* [ ] Hash evaluation
+* [ ] Corruption detection
+* [ ] Integrity metadata
+* [ ] Formal integrity specification
+
+---
+
+# Phase 9 — Tooling
+
+* [x] CLI
+* [x] PNG → ARC
+* [x] JPEG → ARC
+* [x] ARC → image
+* [x] ARC viewer
+* [ ] ARC file inspector
+* [ ] Compression statistics command
+* [ ] Benchmark command
+* [ ] Hex dump / format inspection
+* [ ] Test file generator
+
+---
+
+# Phase 10 — Specification
+
+* [x] Initial file format documentation
+* [x] Initial architecture documentation
+* [x] Compression documentation
+* [ ] Finalize endianness rules
+* [ ] Finalize pixel formats
+* [ ] Finalize metadata rules
+* [ ] Finalize codec versioning
+* [ ] Define compatibility guarantees
+* [ ] Define reference files
+* [ ] Define binary examples
+* [ ] Publish stable specification
+
+---
+
+# Phase 11 — Future
+
+Possible long-term goals:
+
+* [ ] Streaming encoder
+* [ ] Streaming decoder
+* [ ] Parallel encoding
+* [ ] Parallel decoding
+* [ ] Native implementation
+* [ ] Implementations in other languages
+* [ ] Library API
+* [ ] Browser/tooling support
+* [ ] Image editor integration
+
+---
+
+# Current Status
+
+## ARC 2.0
+
+The current experimental codec provides:
+
+```text
+RGB
+ ↓
+Adaptive Filtering
+ ↓
+RLE
+ ↓
+DEFLATE
+ ↓
+ARC
+```
+
+The corresponding decoder performs the inverse pipeline.
+
+The implementation is currently considered **experimental but functional**.
+
+The next major technical milestones are:
+
+1. pixel-perfect automated tests;
+2. controlled RGB benchmark against PNG;
+3. RGBA support;
+4. adaptive compression strategies;
+5. stable binary specification.
