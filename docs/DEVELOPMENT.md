@@ -1,34 +1,34 @@
 # ArcImage Development Guide
 
-## 1. Sobre este documento
+## 1. About This Document
 
-Este documento descreve como configurar o ambiente de desenvolvimento do ArcImage e como trabalhar no projeto.
+> This document describes how to set up the ArcImage development environment and how to work on the project.
 
-O objetivo é facilitar a contribuição e manter o processo de desenvolvimento consistente.
+The goal is to facilitate contributions and maintain a consistent development process.
 
 ---
 
-# 2. Requisitos
+# 2. Requirements
 
-Antes de começar, instale:
+Before starting, install:
 
 * Java;
 * Maven;
 * Git.
 
-A versão mínima do Java deve ser verificada no `pom.xml` do projeto.
+The minimum Java version should be checked in the project's `pom.xml`.
 
 ---
 
-# 3. Obtendo o código
+# 3. Getting the Code
 
-Clone o repositório:
+Clone the repository:
 
 ```bash
 git clone https://github.com/arcanjo-sys/ArcImage.git
 ```
 
-Entre no diretório:
+Enter the directory:
 
 ```bash
 cd ArcImage
@@ -36,15 +36,15 @@ cd ArcImage
 
 ---
 
-# 4. Compilação
+# 4. Build
 
-Para compilar o projeto:
+To build the project:
 
 ```bash
 mvn clean package
 ```
 
-Para apenas compilar:
+To compile only:
 
 ```bash
 mvn compile
@@ -52,30 +52,30 @@ mvn compile
 
 ---
 
-# 5. Testes
+# 5. Testing
 
-Execute os testes com:
+Run the tests with:
 
 ```bash
 mvn test
 ```
 
-Os testes devem verificar principalmente:
+Tests should primarily verify:
 
-* criação de arquivos;
-* leitura de arquivos;
-* valores do Header;
-* dimensões;
-* profundidade de cor;
-* leitura e escrita de pixels;
+* file creation;
+* file reading;
+* Header values;
+* dimensions;
+* color depth;
+* pixel reading and writing;
 * chunks;
-* arquivos inválidos.
+* invalid files.
 
 ---
 
-# 6. Estrutura do projeto
+# 6. Project Structure
 
-A estrutura pode ser organizada da seguinte maneira:
+The structure may be organized as follows:
 
 ```text
 ArcImage/
@@ -101,74 +101,74 @@ ArcImage/
 └── .gitignore
 ```
 
-A estrutura real dos pacotes Java deve ser mantida como referência principal para esta seção.
+The actual Java package structure should be kept as the primary reference for this section.
 
 ---
 
-# 7. Desenvolvimento do formato
+# 7. Format Development
 
-Alterações na estrutura binária devem ser tratadas com cuidado.
+Changes to the binary structure should be handled carefully.
 
 Antes de modificar o formato:
 
-1. Atualize a especificação.
-2. Defina o impacto da alteração.
-3. Atualize o Encoder.
-4. Atualize o Decoder.
-5. Atualize o Viewer
-6. Adicione ou atualize os testes.
-7. Verifique compatibilidade.
-8. Atualize a documentação.
+1. Update the specification.
+2. Define the impact of the change.
+3. Update the Encoder.
+4. Update the Decoder.
+5. Update the Viewer
+6. Add or update tests.
+7. Check compatibility.
+8. Update the documentation.
 
 ---
 
-# 8. Adicionando um novo chunk
+# 8. Adding a New Chunk
 
-Um novo chunk deve possuir:
+A new chunk must have:
 
 ```text
 ┌──────────────┬──────────────┬─────────────────┐
 │    Marker    │    Length    │      Data       │
-│   4 bytes    │   2 bytes    │    variável     │
+│   4 bytes    │   2 bytes    │    variable     │
 └──────────────┴──────────────┴─────────────────┘
 ```
 
-O Marker deve possuir exatamente 4 bytes.
+The Marker must be exactly 4 bytes.
 
-Exemplo:
+Example:
 
 ```text
 EXIF
 ```
 
-Antes de adicionar um novo chunk, documente:
+Before adding a new chunk, document:
 
-* nome;
-* finalidade;
-* tamanho;
-* tipo;
+* name;
+* purpose;
+* size;
+* type;
 * encoding;
-* regras de validação;
-* compatibilidade.
+* validation rules;
+* compatibility.
 
 ---
 
-# 9. Compatibilidade
+# 9. Compatibility
 
-Mudanças incompatíveis com versões anteriores devem resultar em uma nova versão do formato.
+Changes incompatible with previous versions must result in a new format version.
 
-Exemplo:
+Example:
 
 ```text
 Version 1
     │
-    ├── mudanças compatíveis
+    ├── compatible changes
     │
     ▼
 Version 1
 
     │
-    └── mudanças incompatíveis
+    └── incompatible changes
             │
             ▼
         Version 2
@@ -178,23 +178,23 @@ Version 1
 
 # 10. Pull Requests
 
-Pull Requests devem explicar:
+Pull Requests should explain:
 
-* o que foi alterado;
+* what was changed;
 * por que foi alterado;
-* quais arquivos foram modificados;
-* quais testes foram executados;
-* se houve alteração no formato binário.
+* which files were modified;
+* which tests were run;
+* whether the binary format changed.
 
-Alterações no formato devem incluir atualização da documentação correspondente.
+Format changes must include an update to the corresponding documentation.
 
 ---
 
 # 11. Commits
 
-Prefira commits pequenos e objetivos.
+Prefer small, focused commits.
 
-Exemplos:
+Examples:
 
 ```text
 feat: add AUTH metadata chunk
@@ -208,9 +208,9 @@ refactor: simplify pixel reader
 
 # 12. Debugging
 
-Durante o desenvolvimento de um formato binário, é útil inspecionar os arquivos diretamente.
+During binary-format development, it is useful to inspect files directly.
 
-Exemplo:
+Example:
 
 ```bash
 xxd image.arc
@@ -222,15 +222,15 @@ ou:
 hexdump -C image.arc
 ```
 
-Isso permite comparar os bytes produzidos pelo Encoder com a especificação.
+This makes it possible to compare the bytes produced by the Encoder with the specification.
 
 ---
 
-# 13. Testes de compatibilidade
+# 13. Compatibility Tests
 
-Arquivos de teste devem ser mantidos para versões relevantes do formato.
+Test files should be maintained for relevant format versions.
 
-Exemplo:
+Example:
 
 ```text
 tests/
@@ -245,18 +245,18 @@ tests/
     └── invalid-version.arc
 ```
 
-Esses arquivos ajudam a evitar regressões na implementação.
+These files help prevent implementation regressions.
 
 ---
 
 # 14. Checklist
 
-Antes de enviar uma alteração:
+Before submitting a change:
 
-* [ ] O projeto compila.
-* [ ] Os testes passam.
-* [ ] Novos comportamentos possuem testes.
-* [ ] A especificação foi atualizada.
-* [ ] A documentação foi atualizada.
-* [ ] Compatibilidade foi verificada.
-* [ ] O código não depende de detalhes não documentados do formato.
+* [ ] The project builds.
+* [ ] The tests pass.
+* [ ] New behaviors have tests.
+* [ ] The specification has been updated.
+* [ ] The documentation has been updated.
+* [ ] Compatibility has been checked.
+* [ ] The code does not depend on undocumented format details.
