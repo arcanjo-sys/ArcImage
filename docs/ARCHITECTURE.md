@@ -2,248 +2,393 @@
 
 ## 1. Visão geral
 
-O ArcImage é organizado em componentes responsáveis pela criação, leitura e interpretação de arquivos no formato ArcImage.
+O ArcImage é um formato de imagem experimental com foco em **compressão lossless**, representação binária própria e implementação independente da estrutura interna de imagens do Java.
 
-A arquitetura busca manter uma separação clara entre:
+A arquitetura atual é composta por:
 
 * representação da imagem;
-* codificação;
-* decodificação;
-* estrutura do arquivo;
+* filtros preditivos;
+* RLE;
+* DEFLATE;
+* encoder;
+* decoder;
+* viewer;
 * metadados;
-* armazenamento de pixels.
+* estrutura binária do arquivo.
+
+A implementação atual trabalha com imagens **RGB de 24 bits por pixel**.
 
 ---
 
-# 2. Fluxo geral
+## 2. Pipeline de encoding
 
-## Encoding
-
-O processo de criação de um arquivo ArcImage segue, conceitualmente:
+A versão atual utiliza o seguinte pipeline:
 
 ```text
-Image
-  │
-  ▼
-Image Data
-  │
-  ├──────────────► Metadata
-  │
-  └──────────────► Pixel Data
-                        │
-                        ▼
-                  ArcImage Encoder
-                        │
-                        ▼
-                  ArcImage File
+                 RGB Image
+                    │
+                    ▼
+          ┌──────────────────┐
+          │ Adaptive Filters │
+          │                  │
+          │ None             │
+          │ Sub              │
+          │ Up               │
+          │ Average          │
+          │ Paeth            │
+          └────────┬─────────┘
+                   │
+                   ▼
+          ┌──────────────────┐
+          │       RLE        │
+          └────────┬─────────┘
+                   │
+                   ▼
+          ┌──────────────────┐
+          │     DEFLATE      │
+          │                  │
+          │ LZ77 + Huffman   │
+          └────────┬─────────┘
+                   │
+                   ▼
+               ARC File
 ```
 
-## Decoding
+O processo é lossless.
 
-O processo inverso:
+Nenhuma informação de pixel é descartada durante o processo de compressão.
+
+---
+
+## 3. Pipeline de decoding
+
+O decoder executa o processo inverso:
 
 ```text
-ArcImage File
-      │
-      ▼
-ArcImage Decoder
-      │
-      ├──────────────► Header
-      │
-      ├──────────────► Metadata
-      │
-      └──────────────► Pixel Data
-                            │
-                            ▼
-                         Image
+               ARC File
+                  │
+                  ▼
+             Read Header
+                  │
+                  ▼
+             Read Metadata
+                  │
+                  ▼
+             Read DATA
+                  │
+                  ▼
+              DEFLATE
+                  │
+                  ▼
+                 RLE
+                  │
+                  ▼
+          Reverse Filtering
+                  │
+                  ▼
+                RGB
+                  │
+                  ▼
+            BufferedImage
 ```
 
 ---
 
-# 3. Componentes
+## 4. Adaptive Filtering
 
-## 3.1 Encoder
-
-O Encoder é responsável por transformar uma representação de imagem em um arquivo ArcImage.
-
-Suas principais responsabilidades são:
-
-* criar o Header;
-* escrever metadados;
-* escrever as dimensões;
-* escrever a profundidade de cor;
-* escrever os pixels usando o SARCcA (Spatial ARC Compression Algorithm);
-* produzir o arquivo binário final.
-
----
-
-## 3.2 Decoder
-
-O Decoder realiza o processo inverso.
-
-Suas responsabilidades incluem:
-
-* validar o Magic;
-* identificar a versão;
-* ler as dimensões;
-* identificar a profundidade de cor;
-* ler os chunks;
-* interpretar os pixels;
-* reconstruir a imagem.
-
----
-
-## 3.3 Viewer
-
-O Viewer interpreta a imagem e mostra os pixels na tela.
-
-Suas responsabilidades incluem:
-
-* validar o Magic;
-* identificar a versão;
-* ler as dimensões;
-* identificar a profundidade de cor;
-* ler os chunks;
-* interpretar os pixels;
-* mostrar a imagem.
-
----
-
-# 4. Header
-
-O Header é a primeira estrutura interpretada pelo Decoder.
+Antes da compressão, cada linha da imagem é analisada utilizando cinco filtros.
 
 ```text
-┌──────────────────────────┐
-│ Magic                    │
-├──────────────────────────┤
-│ Version                  │
-├──────────────────────────┤
-│ Width                    │
-├──────────────────────────┤
-│ Height                   │
-├──────────────────────────┤
-│ Color Depth              │
-├──────────────────────────┤
-│ Padding                  │
-└──────────────────────────┘
+0 = None
+1 = Sub
+2 = Up
+3 = Average
+4 = Paeth
 ```
 
-O Header permite determinar como o restante do arquivo deve ser interpretado.
+Para cada linha, o encoder gera as cinco representações e calcula um custo para cada uma.
 
----
+A representação com menor custo é selecionada.
 
-# 5. Pixel representation
+### None
 
-Os pixels são armazenados de acordo com o `Color Depth`.
-
-A implementação deve manter a representação interna da imagem separada da representação binária sempre que possível.
-
-Isso permite alterar a forma como os pixels são armazenados sem necessariamente modificar a lógica de manipulação da imagem.
-
----
-
-# 6. Metadata
-
-Os metadados são representados por chunks.
-
-Cada chunk contém:
+Não aplica predição.
 
 ```text
-Marker
-Length
-Data
+F(x) = Raw(x)
 ```
 
-A arquitetura deve permitir adicionar novos tipos de chunks sem exigir alterações significativas no mecanismo principal de leitura.
+### Sub
 
-Chunks atualmente definidos:
+Prediz o pixel utilizando o valor à esquerda.
+
+```text
+F(x) = Raw(x) - Left(x)
+```
+
+### Up
+
+Prediz o pixel utilizando o valor da linha anterior.
+
+```text
+F(x) = Raw(x) - Up(x)
+```
+
+### Average
+
+Utiliza a média entre os valores à esquerda e acima.
+
+```text
+F(x) = Raw(x) - floor((Left(x) + Up(x)) / 2)
+```
+
+### Paeth
+
+Utiliza o preditor Paeth baseado em:
+
+```text
+Left
+Up
+UpperLeft
+```
+
+Esses filtros transformam dados de imagem em resíduos mais previsíveis.
+
+---
+
+## 5. RLE
+
+Após a filtragem, o resultado passa por Run-Length Encoding.
+
+O RLE representa sequências repetidas de bytes de maneira compacta.
+
+O encoder evita utilizar RLE quando uma repetição não proporciona vantagem.
+
+Estruturalmente:
+
+```text
+Control Byte
+     │
+     ├── Literal
+     │
+     └── Run
+```
+
+O decoder restaura os bytes originais antes da etapa de filtragem inversa.
+
+---
+
+## 6. DEFLATE
+
+Após RLE, os dados são processados pelo algoritmo DEFLATE.
+
+A implementação atual utiliza:
+
+```java
+java.util.zip.Deflater
+```
+
+e o decoder utiliza:
+
+```java
+java.util.zip.Inflater
+```
+
+O DEFLATE combina técnicas de:
+
+* LZ77;
+* codificação Huffman.
+
+Assim, a arquitetura completa combina três níveis de compressão:
+
+```text
+Spatial Prediction
+        +
+Run-Length Encoding
+        +
+LZ77/Huffman
+```
+
+---
+
+## 7. Encoder
+
+O encoder é responsável por:
+
+1. carregar a imagem;
+2. validar dimensões;
+3. converter os pixels para RGB;
+4. gerar filtros adaptativos;
+5. aplicar RLE;
+6. aplicar DEFLATE;
+7. construir o header;
+8. escrever metadados;
+9. escrever o bloco `DATA`;
+10. gerar o arquivo `.arc`.
+
+---
+
+## 8. Decoder
+
+O decoder é responsável por:
+
+1. validar a assinatura;
+2. ler dimensões;
+3. identificar o codec;
+4. ler metadados;
+5. ler o bloco comprimido;
+6. executar DEFLATE;
+7. executar RLE inverso;
+8. restaurar os filtros;
+9. reconstruir os pixels RGB;
+10. produzir a imagem final.
+
+---
+
+## 9. Viewer
+
+O Viewer utiliza o decoder para reconstruir a imagem e apresentá-la ao usuário.
+
+O Viewer não deve implementar uma segunda lógica de decodificação.
+
+A arquitetura recomendada é:
+
+```text
+ARC File
+   │
+   ▼
+Decoder
+   │
+   ▼
+BufferedImage
+   │
+   ▼
+Viewer
+```
+
+Isso evita divergências entre o comportamento do decoder e do visualizador.
+
+---
+
+## 10. File Structure
+
+A estrutura lógica atual é:
+
+```text
+HEADER
+METADATA
+DATA
+    CODEC VERSION
+    COMPRESSED SIZE
+    COMPRESSED DATA
+```
+
+O `DATA` marca o início da representação comprimida.
+
+---
+
+## 11. Metadata
+
+Os metadados utilizam chunks:
+
+```text
+┌────────────┬────────────┬──────────────┐
+│   Marker   │   Length   │     Data     │
+│  4 bytes   │  2 bytes   │   variável   │
+└────────────┴────────────┴──────────────┘
+```
+
+Chunks atualmente utilizados pela implementação incluem:
 
 ```text
 AUTH
-TIMS
 SOFT
-COPY
+TIMS
 ```
+
+Novos chunks podem ser adicionados no futuro.
 
 ---
 
-# 7. Error handling
+## 12. Error Handling
 
-O Decoder e o Viewer deve detectar situações como:
+O decoder deve rejeitar arquivos com:
 
-* Magic inválido;
-* versão não suportada;
-* Header incompleto;
+* assinatura inválida;
 * dimensões inválidas;
-* dados de pixel insuficientes;
-* chunk incompleto;
-* Length inconsistente;
-* arquivo truncado.
+* codec desconhecido;
+* dados comprimidos truncados;
+* RLE inválido;
+* filtros inválidos;
+* tamanho inconsistente;
+* dados de imagem incompletos.
 
 Erros de formato devem ser tratados separadamente de erros de I/O sempre que possível.
 
 ---
 
-# 8. Versionamento
+## 13. Lossless Guarantee
 
-A versão armazenada no Header determina como o arquivo deve ser interpretado.
+A propriedade fundamental do codec é:
 
 ```text
-Version
-   │
-   ▼
-Decoder
-   │
-   ├── versão suportada
-   │        │
-   │        ▼
-   │     decode
-   │
-   └── versão não suportada
-            │
-            ▼
-          error
+Original RGB
+     ==
+Decoded RGB
 ```
 
+para todos os pixels.
+
+A validação recomendada é uma comparação pixel a pixel:
+
+```java
+original.getRGB(x, y) == decoded.getRGB(x, y)
+```
+
+para toda a área da imagem.
+
 ---
 
-# 9. Extensibilidade
+## 14. Extensibilidade
 
-A arquitetura deve permitir a inclusão futura de:
+A arquitetura foi projetada para permitir futuras extensões:
 
-* compressão;
-* novos formatos de pixel;
-* novos chunks;
-* thumbnails;
-* perfis de cor;
+* RGBA;
+* novos filtros;
+* novos algoritmos de compressão;
+* transformação de canais;
 * checksums;
-* ferramentas de conversão.
+* perfis de cor;
+* thumbnails;
+* streaming;
+* compressão por blocos.
 
-Novos recursos devem preferencialmente ser adicionados de forma compatível com arquivos existentes.
+Extensões incompatíveis devem ser identificadas através do versionamento do formato ou do codec.
 
 ---
 
-# 10. Princípios
+## 15. Princípios
 
-O projeto segue alguns princípios:
+### Lossless
+
+Nenhum pixel deve ser perdido durante a compressão.
 
 ### Simplicidade
 
-O formato deve ser simples o suficiente para ser implementado e analisado manualmente.
-
-### Determinismo
-
-Uma mesma estrutura de imagem deve produzir uma estrutura ArcImage previsível.
+A estrutura deve permanecer compreensível e analisável.
 
 ### Extensibilidade
 
-O formato deve permitir evolução sem exigir uma reconstrução completa da especificação.
+O formato deve permitir novas funcionalidades sem comprometer sua estrutura básica.
 
 ### Portabilidade
 
-A especificação deve evitar depender de detalhes específicos da linguagem Java.
+A especificação deve ser independente da implementação Java.
+
+### Determinismo
+
+O processo de encoding deve possuir comportamento previsível para uma determinada entrada e configuração.
 
 ### Documentação
 
-O comportamento do formato deve estar documentado independentemente da implementação de referência.
+A especificação deve ser suficiente para permitir implementações independentes do codec.
